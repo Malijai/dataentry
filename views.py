@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, render, redirect, get_object_or_404
-from django.views import generic
-from django.http import HttpResponseRedirect, cookie
-from django.core.urlresolvers import reverse
+from django.shortcuts import  render, redirect
 from django.contrib.auth.models import User
-from .models import Typequestion, Questionnaire,Question,Condition,Resultat,Personne
+from .models import Questionnaire, Question, Resultat, Personne
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 

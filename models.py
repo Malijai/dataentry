@@ -27,7 +27,7 @@ class Questionnaire(models.Model):
     def __unicode__(self):
         return u'%s' % self.nom_en
 
-DEFAULT_PARENT_ID = 1
+DEFAULT_PARENT_ID = 0
 class Question(models.Model):
     questionno = models.IntegerField()
     questionen = models.CharField(max_length=255,)
@@ -49,20 +49,6 @@ class Question(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.questionen
-
-
-class Condition(models.Model):
-    parent = models.ForeignKey(Question, related_name='QuestionParent')
-    enfant = models.ForeignKey(Question, related_name='QuestionEnfant')
-    relation = models.CharField(blank=True, null=True, max_length=200,)
-    cible = models.CharField(blank=True, null=True, max_length=200,)
-    questionnaire = models.ForeignKey(Questionnaire)
-
-    def __str__(self):
-        return '%s' % self.parent
-
-    def __unicode__(self):
-        return u'%s' % self.parent
 
 
 class Province(models.Model):

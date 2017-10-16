@@ -1,11 +1,8 @@
 from __future__ import unicode_literals
 from django import template
-from django.http import QueryDict
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 import re
 from django.apps import apps
-from SPVM.models import Typequestion, Resultat, Reponse
+from dataentry.models import Resultat, Reponse
 from django import forms
 
 register = template.Library()
@@ -55,11 +52,10 @@ def fait_date(a,b, *args, **kwargs):
     else:
         defaultvalue = ''
 
-    IDCondition = ''
+    IDCondition = "q" + str(qid)
     if relation != '' and cible != '':
         IDCondition = 'row-' + str(qid) + 'X' +  str(relation) + 'X' +  str(cible)
-    else:
-        IDCondition = "q" + str(qid)
+
     name = "q" + str(qid)
     question = forms.DateInput(format=('%d-%m-%Y'), attrs={'id': IDCondition,'name': name,})
 
