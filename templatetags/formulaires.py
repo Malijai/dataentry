@@ -116,8 +116,8 @@ def fait_table(a,b, *args, **kwargs):
     else:
         IDCondition = "q" + str(qid)
 
-    Klass = apps.get_model('SPVM', tableext)
-    # Klass = apps.get_model('SPVM', typetable[b])
+    Klass = apps.get_model('dataentry', tableext)
+    # Klass = apps.get_model('dataentry'', typetable[b])
     listevaleurs = Klass.objects.all()
     name = "q" + str(qid)
     liste = [('','')]
@@ -201,8 +201,8 @@ def fait_table_valeurs(a,b, *args, **kwargs):
     else:
         IDCondition = "q" + str(qid)
 
-    Klass = apps.get_model('SPVM', tableext)
-    # Klass = apps.get_model('SPVM', typetable[b])
+    Klass = apps.get_model('dataentry', tableext)
+    # Klass = apps.get_model('dataentry', typetable[b])
     listevaleurs = Klass.objects.all()
     name = "q" + str(qid)
     liste = [('','')]
