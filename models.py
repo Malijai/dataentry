@@ -87,23 +87,6 @@ class Personne(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     assistant = models.ForeignKey(User)
 
-
-DEFAULT_PID = 1
-class Resultat(models.Model):
-    personne = models.ForeignKey(Personne)
-    question = models.ForeignKey(Question)
-    assistant = models.ForeignKey(User)
-#    verdict_id
-#    audience_id
-    province = models.ForeignKey(Province,default=DEFAULT_PID)
-    reponsetexte = models.CharField(max_length=200,blank=True, null=True)
-    reponsecode = models.CharField(max_length=200,blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = (('personne', 'question','assistant'),)
-
 class Reponse(models.Model):
     question = models.ForeignKey(Question)
     reponse_no = models.CharField(max_length=200)
@@ -169,7 +152,7 @@ class Victime(models.Model):
     nom_fr = models.CharField(max_length=200, )
 
     class Meta:
-        ordering = ['reponse_valeur']
+        ordering = ['id']
 
     def __str__(self):
         return '%s' % self.nom_en
@@ -191,10 +174,12 @@ class Posologie(models.Model):
     def __unicode__(self):
         return u'%s' % self.nom_en
 
+DEFAULT_PID = 1
 class Etablissement(models.Model):
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
+    province = models.ForeignKey(Province,default=DEFAULT_PID)
 
     class Meta:
         ordering = ['reponse_valeur']
@@ -209,7 +194,7 @@ class Municipalite(models.Model):
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
-    province = models.ForeignKey(Province, default=DEFAULT_PID)
+    province = models.ForeignKey(Province,default=DEFAULT_PID)
 
     class Meta:
         ordering = ['reponse_valeur']
@@ -219,3 +204,48 @@ class Municipalite(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
+class Verdict(models.Model):
+    reponse_valeur = models.CharField(max_length=200)
+    nom_en = models.CharField(max_length=200, )
+    nom_fr = models.CharField(max_length=200, )
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return '%s' % self.nom_en
+
+    def __unicode__(self):
+        return u'%s' % self.nom_en
+
+
+class Audience(models.Model):
+    nom_en = models.CharField(max_length=200, )
+    nom_fr = models.CharField(max_length=200, )
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return '%s' % self.nom_en
+
+    def __unicode__(self):
+        return u'%s' % self.nom_en
+
+
+DEFAULT_VERD = 100
+class Resultat(models.Model):
+    personne = models.ForeignKey(Personne)
+    question = models.ForeignKey(Question)
+    assistant = models.ForeignKey(User)
+    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD)
+    audience = models.ForeignKey(Audience, default=DEFAULT_VERD)
+    province = models.ForeignKey(Province, default=DEFAULT_PID)
+    reponsetexte = models.CharField(max_length=200, blank=True, null=True)
+    reponsecode = models.CharField(max_length=200, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('personne', 'question','verdict','audience','assistant'),)

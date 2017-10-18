@@ -27,8 +27,8 @@ $(function() {
 		var valeurcible2;
 		var courant=$(this).val();
 
-		if(valeurcible=='vide'){
-			valeurcible2='';
+		if(valeurcible=="vide"){
+			valeurcible2="";
 		}else{
 			valeurcible2= valeurcible;
 			valeurcible=parseInt(valeurcible, 10);
@@ -53,8 +53,8 @@ $(function() {
 			}else{
 					$('.child-'+enfant+relation+valeurcible).hide();
 			}
-		}else{
-			if(courant != valeurcible2){
+		}else if(relation == 'diff'){
+			if(courant != valeurcible2) {
 					$('.child-'+enfant+relation+valeurcible).show();
 			}else{
 					 $('.child-'+enfant+relation+valeurcible).hide();
@@ -75,8 +75,8 @@ $("select[@id^=row-]").click(function(){
 	var enfant=res[0];
 	var courant=$(this).val();
 
-	if(valeurcible=='vide'){
-			valeurcibl2='';
+	if(valeurcible=="vide"){
+			valeurcibl2="";
 	}
 valeurcible=parseInt(valeurcible, 10);
 courant=parseInt(courant, 10);
@@ -87,13 +87,13 @@ courant=parseInt(courant, 10);
 		}else{
 			$('.child-'+enfant+relation+valeurcible).hide();
 		}
-		}else if(relation=='inf'){
+		}else if(relation =='inf'){
 			if(courant < valeurcible) {
 					$('.child-'+enfant+relation+valeurcible).show();
 			}else{
 					$('.child-'+enfant+relation+valeurcible).hide();
 			}
-		}else if(relation=='sup'){
+		}else if(relation == 'sup'){
 			if(courant > valeurcible) {
 					$('.child-'+enfant+relation+valeurcible).show();
 			}else{
@@ -110,48 +110,6 @@ courant=parseInt(courant, 10);
 });
 </script>
 
-<script type="text/javascript" >
-$(function() {
-$("select[@id^=row-]").click(function(){
- 		var reg = new RegExp("X", "");
-		res = this.id.split(reg);
-		var cond=res[3];
-		var valeurcible=res[2];
-		var relation=res[1];
-		var enfant=res[0];
-		var courant=$(this).val();
-
-valeurcible=parseInt(valeurcible, 10);
-courant=parseInt(courant, 10);
-
-		if (relation=='eq'){
-			if(courant == valeurcible) {
-					$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-					$('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}else if (relation=='inf'){
-			if(courant < valeurcible){
-					$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-					 $('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}else if (relation=='sup'){
-			if(courant > valeurcible){
-					$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-					 $('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}else{
-			if(courant != valeurcible){
-					$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-					 $('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}
-	});
-});
-</script>
 
 <script type="text/javascript" >
 $(function() {
@@ -163,8 +121,8 @@ $(function() {
 		var relation=res[1];
 		var enfant=res[0];
 		var valeurcible2;
-		if(valeurcible=='vide'){
-			valeurcible2='';
+		if(valeurcible=="vide"){
+			valeurcible2="";
 		}else{
 			valeurcible2= valeurcible;
 			}
@@ -188,15 +146,11 @@ $(function() {
 </head>
     <body>
     <form action="" method="post">
-    <div id="container">
+        <div id="container">
+            {% block content %}
 
-
-    {% block content %}
-
-    {% endblock %}
-
-        </div><!--Fermeture de la boite à onglets--> '
-    </div>
+            {% endblock %}
+        </div>
     <button type="submit" class="btn-default">Save</button>
     </form>
 </div>

@@ -11,23 +11,76 @@
 
 </head>
 <body>
-<h2>Form</h2>
-
+<h2>{{ user.first_name }} {{ user.last_name }} </h2>
 <form method="post">
     {% csrf_token %}
-        <select name="personneid" id="personneid" >
+
+    <select name="provinceid" id="provinceid" >
+            <option>Select a case</option>
+            {% for province in provinces %}
+            <option value="{{province.id}}">{{ province.nom_en}}</option>
+            {% endfor %}
+    </select>
+    <select name="personneid" id="personneid" >
             <option>Select a case</option>
             {% for personne in personnes %}
             <option value="{{personne.id}}">{{ personne.code}}</option>
             {% endfor %}
-        </select>
-        <select name="questionnaireid" id="questionnaireid" >
+    </select>
+    <h3>For all non repetitives data coming from all source of information</h3>
+    <select name="questionnaireid1" id="questionnaireid1" >
             <option>Select a case</option>
             {% for questionnaire in questionnaires %}
-            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                 {% if questionnaire.id == 4 %}
+                    <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                {% endif %}
             {% endfor %}
-        </select>
+    </select>
         <button type="submit" >Choisir</button>
+</hr>
+    <h3>Verdicts</h3>
+
+    <select name="questionnaireid2" id="questionnaireid2" >
+            <option>Select a case</option>
+            {% for questionnaire in questionnaires %}
+                 {% if questionnaire.id == 10 or questionnaire.id  == 11 %}
+                    <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                {% endif %}
+            {% endfor %}
+    </select>
+   <select name="verdictid" id="verdictid" >
+            <option>Select a case</option>
+            {% for verdict in verdicts %}
+            <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
+            {% endfor %}
+    </select>
+
+        <button type="submit" >Choisir</button>
+</hr>
+    <h3>Hearings</h3>
+
+    <select name="questionnaireid3" id="questionnaireid3" >
+            <option>Select a case</option>
+            {% for questionnaire in questionnaires %}
+                 {% if questionnaire.id  == 20 or questionnaire.id  == 21 or questionnaire.id  == 22 %}
+                    <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                {% endif %}
+            {% endfor %}
+    </select>
+   <select name="verdictid" id="verdictid" >
+            <option>Select a case</option>
+            {% for verdict in verdicts %}
+            <option value="{{verdict.reponse_valeur}}">{{ verdict.nom_en}}</option>
+            {% endfor %}
+    </select>
+   <select name="audienceid" id="audienceid" >
+            <option>Select a case</option>
+            {% for audience in audiences %}
+            <option value="{{audience.id}}">{{ audience.nom_en}}</option>
+            {% endfor %}
+    </select>
+
+    <button type="submit" >Choisir</button>
 
     </form>
 

@@ -1,6 +1,7 @@
 body,p {
   font-size: 0.9em;
   font-family: Verdana,Arial,Sans,Helvetica,sans-serif;
+  margin-left:10px;
 }
 
 table {
@@ -8,12 +9,17 @@ table {
 	margin-left:15px;
 }
 tr td{
-	padding:    0 3px 0 3px;
+	padding: 0 3px 0 3px;
 	border-bottom: #69c solid 1px;
 	margin-left:15px;
 }
+
+tr.Q2{
+    background: #eee;
+}
+
 td.Q2 {
-background: #eee;
+    background: #eee;
 }
 
 td.Q1 {
@@ -21,8 +27,9 @@ td.Q1 {
 }
 
 td.R2 {
-background: #eee;
+    background: #eee;
 }
+
 td.R1 {
 
 }
@@ -31,11 +38,12 @@ td.fille {
  background: #D3E3F6;
 }
 
-td.mere {
+tr.mere {
 border-top:  #1459A8 solid 1px;
 border-bottom:  #1459A8 solid 2px;
 background: #BAC9DA;
 }
+
 td.fillemere {
  background: #B0CEF0;
 }
@@ -90,6 +98,7 @@ background:#D0EDBB;
   --------------------------------------------------*/
 .tabber {
 }
+
 .tabberlive {
  margin-top:1em;
 }
@@ -186,8 +195,6 @@ ul.tabbernav li.tabberactive a:hover
  height:200px;
  overflow:auto;
 }
-
-
 
 select {
   background-color: #91e1f9;
@@ -343,7 +350,7 @@ Bref... pour r�sumer, ce qu'il y a � modifier � la base, c'est :
   }
 
 
-  #nav a:link, #nav a:active, #nav a:visited{
+#nav a:link, #nav a:active, #nav a:visited{
     width:12em;
     display:block;
     padding:0px 5px;
