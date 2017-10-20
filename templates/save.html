@@ -5,11 +5,13 @@
 
 {% block content %}
 <h2>{{Questtitre}}</h2>
-<h2>Essai Personne_ID={{ pid }} Province ID = {{ province }} </h2>
+<h2>Essai Personne_ID={{ pid }} Province ID = {{ province }} Verdict {{ Vid }}, Audience {{ Aid }}</h2>
 {% csrf_token %}
    <input name="pid" type="hidden" value="{{ pid }}" />
    <input name="qid" type="hidden" value="{{ qid }}" />
    <input name="province" type="hidden" value="{{ province }}" />
+   <input name="Aid" type="hidden" value="{{ Aid }}" />
+   <input name="Vid" type="hidden" value="{{ Vid }}" />
    <div class="tabber">
 
     {% for question in questions %}

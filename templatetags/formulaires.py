@@ -31,26 +31,38 @@ def fait_dichou(a,b, *args, **kwargs):
 
 
 @register.simple_tag
-def fait_date(a,b, *args, **kwargs):
-    qid = a
+def fait_date(qid,b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
     assistant=1
+    an = ''
+    mois = ''
+    jour = ''
+    defff = ''
+    existe = Resultat.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant).count()
+    if existe > 0:
+        ancienne = Resultat.objects.get(personne__id=personneid, question__id=qid, assistant__id=1)
+        defff = ancienne.reponsetexte
+        an, mois, jour = defff.split('-')
 
-    defaultvalue = fait_default(personneid,qid,assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
-
     name = "q" + str(qid)
-    question = forms.DateInput(format=('%d-%m-%Y'), attrs={'id': IDCondition,'name': name,})
 
-    return question.render(name, defaultvalue)
+    years = {x:x for x in  [''] + range(1910,2019)}
+    days = {x:x for x in  [''] + range(1,32)}
+    months=(('',''),(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),(9,'Sept'),(10,'Oct'),(11,'Nov'),(12,'Dec'))
+    year = forms.Select(choices = years.iteritems(), attrs={'id': IDCondition, 'name': name + '_year', })
+    month = forms.Select(choices = months, attrs={ 'name': name + '_month' })
+    day = forms.Select(choices = days.iteritems(), attrs={'name': name + '_day' })
+#name=q69_year, id=row...
+
+    return year.render(name + '_year' , an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
 
 
 @register.simple_tag
-def fait_textechar(a,b, *args, **kwargs):
-    qid = a
-    type = b
+def fait_textechar(qid,type, *args, **kwargs):
+
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
@@ -70,14 +82,13 @@ def fait_textechar(a,b, *args, **kwargs):
 
 
 @register.simple_tag
-def fait_table(a,b, *args, **kwargs):
+def fait_table(qid,type, *args, **kwargs):
     #questid type
-    qid = a
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
     typetable = {"PROVINCE": "province", "PAYS": "pays", "LANGUE": "langue","VIOLATION": "violation"}
-    tableext = typetable[b]
+    tableext = typetable[type]
     assistant=1
 
     defaultvalue = fait_default(personneid,qid,assistant=assistant)
@@ -90,7 +101,10 @@ def fait_table(a,b, *args, **kwargs):
     liste = [('','')]
     for valeur in listevaleurs:
        vid=str(valeur.id)
-       nen=valeur.nom_en
+       if type == "VIOLATION":
+           nen= vid + ' - ' + valeur.nom_en
+       else:
+            nen=valeur.nom_en
        liste.append((vid, nen))
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
@@ -98,10 +112,8 @@ def fait_table(a,b, *args, **kwargs):
     return question.render(name, defaultvalue)
 
 @register.simple_tag
-def fait_reponse(a,b, *args, **kwargs):
+def fait_reponse(qid,b, *args, **kwargs):
     #Pour listes de valeurs specifiques a chaque question
-    #questid type
-    qid = a
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
@@ -128,15 +140,14 @@ def fait_reponse(a,b, *args, **kwargs):
     return enlevelisttag(question.render(name, defaultvalue))
 
 @register.simple_tag
-def fait_table_valeurs(a,b, *args, **kwargs):
+def fait_table_valeurs(qid,type, *args, **kwargs):
     #pour les tables dont la valeur a enregistrer n'est pas l'id mais la reponse_valeur (independant de la province)
-    qid = a
-    province = b
+
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
     typetable = {"HCR20": "hcr", "POSOLOGIE":"posologie", "VICTIME":"victime",}
-    tableext = typetable[b]
+    tableext = typetable[type]
     assistant=1
 
     defaultvalue = fait_default(personneid,qid,assistant=assistant)
@@ -157,16 +168,15 @@ def fait_table_valeurs(a,b, *args, **kwargs):
     return question.render(name, defaultvalue)
 
 @register.simple_tag
-def fait_table_valeurs_prov(a,b, *args, **kwargs):
+def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     #pour les tables dont la valeur a enregistrer n'est pas l'id mais la reponse_valeur
     #et dont la liste depend de la province
-    qid = a
     province =  kwargs['province']
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
     typetable = {"ETABLISSEMENT": "etablissement", "MUNICIPALITE": "municipalite",}
-    tableext = typetable[b]
+    tableext = typetable[type]
     assistant=1
 
     defaultvalue = fait_default(personneid,qid,assistant=assistant)
@@ -193,7 +203,6 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-@register.filter
 def enlevelisttag(texte):
     ## pour mettre les radiobutton sur une seule ligne
     texte = re.sub(r"(<ul[^>]*>)",r"", texte)
@@ -202,11 +211,8 @@ def enlevelisttag(texte):
     return re.sub(r"(</ul>)",r" ", texte)
 
 
-@register.simple_tag
-def fait_default(a,b, *args, **kwargs):
+def fait_default(personneid,qid, *args, **kwargs):
     ##fail la valeur par deffaut
-    personneid = a
-    qid=b
     assistant = kwargs['assistant']
 #    province =  kwargs['province']
     defff = ''
@@ -217,11 +223,9 @@ def fait_default(a,b, *args, **kwargs):
 
     return defff
 
-@register.simple_tag
-def fait_id(a, b, *args, **kwargs):
+
+def fait_id(qid, cible, *args, **kwargs):
     ##fail l'ID pour javascripts ou autre
-    qid=a
-    cible=b
     relation = kwargs['relation']
 
     IDCondition = "q" + str(qid)

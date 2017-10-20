@@ -30,89 +30,34 @@ def listequestions(request):
 
 
 @login_required(login_url=settings.LOGIN_URI)
-def savereponses(request, qid, pid, province, verdict, audience):
-    #affiche le formulaire pour 1 questionnaire (qid) et 1 personne(pid) et une province (province)
-
-    questionstoutes = Question.objects.filter(questionnaire__id=qid)
-    enfants = Question.objects.filter(question__parent__id__gt=1, questionnaire=qid)
-    ascendancesM = {rquestion.id for rquestion in Question.objects.filter(pk__in=enfants)}
-    ascendancesF = set()  #liste sans doublons
-    for rquestion in questionstoutes:
-        for fille in Question.objects.filter(parent__id=rquestion.id):
-            # #va chercher si a des filles (question_ fille)
-            ascendancesF.add(fille.id)
-
-    if request.method == 'POST':
-        personne = Personne.objects.get(pk=pid)
-        for question in questionstoutes:
-            assistant = request.user
-            quest = Question.objects.get(pk=question.id)
-            reponseaquestion = request.POST.get('q' + str(question.id))
-            if reponseaquestion:
-                Resultat.objects.update_or_create(
-                     personne=personne, question=quest, verdict_id=vvverdict, audience_id=vvaudience, assistant=assistant,
-                    # update these fields, or create a new object with these values
-                    defaults={
-                        'reponsetexte': reponseaquestion,
-                        'province_id': vvprovince,
-                    }
-                )
-        return render(request, 'save.html',
-                       {
-                           'qid': qid,
-                           'pid': pid,
-                           'province': province,
-                           'verdict': verdict,
-                           'audience': audience,
-                           'questions': questionstoutes,
-                           'ascendancesM': ascendancesM,
-                           'ascendancesF': ascendancesF,
-                       }
-                       )
-        #    url(r'^(?P<questionnaire>[0-9]+)/save/$', views.savereponses, name='savereponses'),
-    else:
-        return render(request,'save.html',
-                    {
-                        'qid': qid,
-                        'pid': pid,
-                        'province': province,
-                        'verdict': verdict,
-                        'audience': audience,
-                        'questions': questionstoutes,
-                        'ascendancesM': ascendancesM,
-                        'ascendancesF': ascendancesF,
-                        }
-                    )
-
-
-@login_required(login_url=settings.LOGIN_URI)
 def SelectPersonne(request):
     if request.method == 'POST':
-
-        if request.POST.get('verdictid') == '':
-            verdictid=100
-        else:
-            verdictid = request.POST.get('verdictid')
-
-        if request.POST.get('audienceid') == '':
-            audienceid = 100
-        else:
-            audienceid = request.POST.get('audienceid')
-
-        questionnaireid = request.POST.get('questionnaireid1')
-        if request.POST.get('questionnaireid1') == '' and request.POST.get('questionnaireid2') != '':
-            questionnaireid = request.POST.get('questionnaireid2')
-        if request.POST.get('questionnaireid2') == '' and request.POST.get('questionnaireid3') != '':
-            questionnaireid = request.POST.get('questionnaireid3')
-        return redirect(savereponses,
-                            {
-                            'qid': questionnaireid,
-                            'pid': request.POST.get('personneid'),
-                            'province': request.POST.get('provinceid'),
-                            'verdict': verdictid,
-                            'audience': audienceid
-                            }
+        if 'Choisir1' in request.POST:
+            return redirect(savereponses,
+                                    request.POST.get('questionnaireid'),
+                                    request.POST.get('personneid'),
+                                    request.POST.get('provinceid'),
+                                    request.POST.get('verdictid1'),
+                                    request.POST.get('audienceid1')
                         )
+        elif 'Choisir2' in request.POST:
+            return redirect(savereponses,
+                        request.POST.get('questionnaireid'),
+                        request.POST.get('personneid'),
+                        request.POST.get('provinceid'),
+                        request.POST.get('verdictid2'),
+                        request.POST.get('audienceid2')
+                        )
+
+        elif 'Choisir3' in request.POST:
+            return redirect(savereponses,
+                        request.POST.get('questionnaireid'),
+                        request.POST.get('personneid'),
+                        request.POST.get('provinceid'),
+                        request.POST.get('verdictid3'),
+                        request.POST.get('audienceid3')
+                        )
+
     else:
          return render(
             request,
@@ -128,34 +73,66 @@ def SelectPersonne(request):
 
 
 @login_required(login_url=settings.LOGIN_URI)
-def savereponsesdebug(request, qid, pid):
-    #affiche le formulaire pour 1 questionnaire (qid) et 1 personne(pid) et une province (province)
-
-    enfants = Question.objects.filter(question__parent__gt=1, questionnaire=qid)
-    parent_list = Question.objects.filter(pk__in=enfants)
-
-    questionstoutes =  Question.objects.filter(questionnaire__id=qid)
-    ascendancesM = {}
-    meresDeF = {}
-    ascendancesF  = {}
-    for rquestion in parent_list:
-       ascendancesM[rquestion.id]='M'  # question_id = id de la fille, la mère = parent_cond
-
+def savereponses(request, qid, pid, province, Vid, Aid):
+    if Vid == 'None':
+        Vid=100
+    if Aid == 'None':
+        Aid=100
+    questionstoutes = Question.objects.filter(questionnaire__id=qid)
+    enfants = Question.objects.filter(question__parent__id__gt=0, questionnaire=qid)
+    ascendancesM = {rquestion.id for rquestion in Question.objects.filter(pk__in=enfants)}
+    ascendancesF = set()  # liste sans doublons
     for rquestion in questionstoutes:
-       for fille in Question.objects.filter(parent__id=rquestion.id):
-            # va chercher si a des filles (question_ fille)
-            meresDeF[fille.id] = rquestion.id
-            ascendancesF[fille.id]='F'
+        for fille in Question.objects.filter(parent__id=rquestion.id):
+            # #va chercher si a des filles (question_ fille)
+            ascendancesF.add(fille.id)
 
-    return render(
-        request,
-        'save42.html',
-        {
-            'qid': qid,
-            'questions': questionstoutes,
-            'pid': pid,
-            'ascendancesM': ascendancesM,
-            'meresDeF':meresDeF,
-            'ascendancesF': ascendancesF,
-            }
-        )
+    if request.method == 'POST':
+        for question in questionstoutes:
+            assistant = request.user
+            quest = Question.objects.get(pk=question.id)
+            if quest.typequestion_id == 5:
+                an = request.POST.get('q' + str(question.id) + '_year')
+                if an != "":
+                    mois = request.POST.get('q' + str(question.id) + '_month')
+                    jour = request.POST.get('q' + str(question.id) + '_day')
+                    reponseaquestion = str(an) + '-' + str(mois) + '-' + str(jour)
+                else:
+                    reponseaquestion = ''
+            else:
+                reponseaquestion = request.POST.get('q' + str(question.id))
+            if reponseaquestion:
+                Resultat.objects.update_or_create(
+                     personne_id=pid, question=quest, verdict_id=Vid, audience_id=Aid, assistant=assistant,
+                    # update these fields, or create a new object with these values
+                    defaults={
+                        'reponsetexte': reponseaquestion,
+                        'province_id': province,
+                    }
+                )
+        return render(request, 'save.html',
+                      {
+                          'qid': qid,
+                          'pid': pid,
+                          'province': province,
+                          'Vid': Vid,
+                          'Aid': Aid,
+                          'questions': questionstoutes,
+                          'ascendancesM': ascendancesM,
+                          'ascendancesF': ascendancesF
+                      }
+                      )
+
+    else:
+        return render(request, 'save.html',
+                  {
+                      'qid': qid,
+                      'pid': pid,
+                      'province': province,
+                      'Vid': Vid,
+                      'Aid': Aid,
+                      'questions': questionstoutes,
+                      'ascendancesM': ascendancesM,
+                      'ascendancesF': ascendancesF
+                  }
+                  )

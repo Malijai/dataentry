@@ -87,6 +87,7 @@ class Personne(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     assistant = models.ForeignKey(User)
 
+
 class Reponse(models.Model):
     question = models.ForeignKey(Question)
     reponse_no = models.CharField(max_length=200)
@@ -124,7 +125,7 @@ class Violation(models.Model):
     nom_fr = models.CharField(max_length=200, )
 
     class Meta:
-        ordering = ['nom_en']
+        ordering = ['id']
 
     def __str__(self):
         return '%s' % self.nom_en
