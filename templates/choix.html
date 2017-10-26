@@ -5,12 +5,19 @@
     <head>
          <title>Questions etc</title>
 
-                <script type="text/javascript" src="/static/jquery.js"></script>
+        <script type="text/javascript" src="/static/jquery.js"></script>
         <script type="text/javascript" src="/static/tabber.js"></script>
         <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
 
 </head>
 <body>
+{% if messages %}
+    {% for msg in messages %}
+        <div class="alert alert-{{msg.level_tag}}" role="alert">
+        {{msg.message}}
+        </div>
+    {% endfor %}
+{% endif %}
 <h2>{{ user.first_name }} {{ user.last_name }} </h2>
 
    <div class="tabber">
@@ -23,19 +30,19 @@
             <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Select Province</td><td><select name="provinceid">
-                    <option>Select a province</option>
+                    <option value="">Select a province</option>
                     {% for province in provinces %}
                     <option value="{{province.id}}">{{ province.nom_en}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Personne</td><td><select name="personneid" >
-                    <option>Select a case</option>
+                    <option value="">Select a case</option>
                     {% for personne in personnes %}
                     <option value="{{personne.id}}">{{ personne.code}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
-                    <option>Select a questionnaire</option>
+                    <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
                          {% if questionnaire.id == 4 %}
                             <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
@@ -54,19 +61,19 @@
             <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Select Province</td><td><select name="provinceid">
-                    <option>Select a province</option>
+                    <option value="">Select a province</option>
                     {% for province in provinces %}
                     <option value="{{province.id}}">{{ province.nom_en}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Personne</td><td><select name="personneid">
-                    <option>Select a case</option>
+                    <option value="">Select a case</option>
                     {% for personne in personnes %}
                     <option value="{{personne.id}}">{{ personne.code}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Questionnaire</td><td><select name="questionnaireid">
-                    <option>Select a questionnaire</option>
+                    <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
                          {% if questionnaire.id == 10 or questionnaire.id == 11 %}
                             <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
@@ -74,7 +81,7 @@
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Verdict</td><td><select name="verdictid2">
-                    <option>Select a verdict</option>
+                    <option value="">Select a verdict</option>
                     {% for verdict in verdicts %}
                     <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
                     {% endfor %}
@@ -92,19 +99,19 @@
             <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Select Province</td><td><select name="provinceid">
-                    <option>Select a province</option>
+                <option value="">Select a province</option>
                     {% for province in provinces %}
                     <option value="{{province.id}}">{{ province.nom_en}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Personne</td><td><select name="personneid">
-                    <option>Select a case</option>
+                    <option value="">Select a case</option>
                     {% for personne in personnes %}
                     <option value="{{personne.id}}">{{ personne.code}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Questionnaire</td><td><select name="questionnaireid">
-                    <option>Select a questionnaire</option>
+                    <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
                          {% if questionnaire.id  == 20 or questionnaire.id  == 21 or questionnaire.id  == 22 %}
                             <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
@@ -112,13 +119,13 @@
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Verdict</td><td><select name="verdictid3">
-                    <option>Select a verdict</option>
+                    <option value="">Select a verdict</option>
                     {% for verdict in verdicts %}
                     <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Hearing</td><td><select name="audienceid3">
-                    <option>Select a hearing</option>
+                    <option value="">Select a hearing</option>
                     {% for audience in audiences %}
                     <option value="{{audience.id}}">{{ audience.nom_en}}</option>
                     {% endfor %}
@@ -127,6 +134,38 @@
             <button type="submit" name="Choisir3">Choose</button>
            </form>
     </div>
+
+       <div class="tabbertab">
+           <form method="post" action="">
+           {% csrf_token %}
+           <h3>AFSF</h3><b>AFSF ou autre</b>
+            <table>
+                <tr><td></td><td></td></tr>
+                <tr><td>Select Province</td><td><select name="provinceid">
+                    <option value="">Select a province</option>
+                    {% for province in provinces %}
+                    <option value="{{province.id}}">{{ province.nom_en}}</option>
+                    {% endfor %}
+                    </select></td></tr>
+                <tr><td>Personne</td><td><select name="personneid" >
+                    <option value="">Select a case</option>
+                    {% for personne in personnes %}
+                    <option value="{{personne.id}}">{{ personne.code}}</option>
+                    {% endfor %}
+                    </select></td></tr>
+                <tr><td>Questionnaire</td><td><select name="questionnaireid" >
+                    <option value="">Select a questionnaire</option>
+                    {% for questionnaire in questionnaires %}
+                         {% if questionnaire.id == 100 %}
+                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select></td></tr>
+            </table>
+                <button type="submit" name="Choisir4">Choose</button>
+        </form>
+       </div>
+
    </div>
 </body>
 </html>

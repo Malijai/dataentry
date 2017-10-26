@@ -427,3 +427,20 @@ font-size: 1em;
 .largeur{
     width:20em;
 }
+
+/* MESSAGES & ERRORS */
+
+.alert {
+    padding: 5;
+    margin: 5;
+    border: 1px solid #ba2121;
+    border-radius: 4px;
+}
+
+.alert.alert-warning{
+    background-color: #dfd;
+}
+
+.alert.alert-error{
+    background-color: #FFC0CB;
+}

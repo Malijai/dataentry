@@ -147,6 +147,14 @@ $(function() {
     <body>
     <form action="" method="post">
         <div id="container">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-{{msg.level_tag}}" role="alert">
+                    {{msg.message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
             {% block content %}
 
             {% endblock %}
