@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import  render, redirect
 from django.contrib.auth.models import User
-from .models import Questionnaire, Question, Resultat, Personne, Province, Verdict, Audience, AFSF
+from .models import Questionnaire, Question, Resultat, Personne, Province, Verdict, Audience, Reponsesafsf
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.apps import apps
 import datetime
+import logging
+
 
 @login_required(login_url=settings.LOGIN_URI)
 def listequestions(request):
@@ -202,7 +205,7 @@ def savereponses(request, qid, pid, province, Vid, Aid):
 
 
 @login_required(login_url=settings.LOGIN_URI)
-def saveafsf(request, qid, pid, province):
+def saveafsfOLD(request, qid, pid, province):
     questionstoutes = Question.objects.filter(questionnaire__id=qid)
     enfants = Question.objects.filter(question__parent__id__gt=0, questionnaire=qid)
     ascendancesM = {rquestion.id for rquestion in Question.objects.filter(pk__in=enfants)}
@@ -211,42 +214,59 @@ def saveafsf(request, qid, pid, province):
         for fille in Question.objects.filter(parent__id=rquestion.id):
             # #va chercher si a des filles (question_ fille)
             ascendancesF.add(fille.id)
-    fiches = AFSF.objects.filter(personne__id=pid, assistant__id=request.user.id)
-    ordre = AFSF.objects.filter(personne__id=pid, assistant__id=request.user.id).count()
-
+    questiontable = {"100": "afsf", }
+    Klass = apps.get_model('dataentry', questiontable[str(qid)])
+    fiches = Klass.objects.filter(personne__id=pid, assistant__id=request.user.id)
     if request.method == 'POST':
-        for question in questionstoutes:
-            assistant = request.user
-            quest = Question.objects.get(pk=question.id)
-            if quest.typequestion_id == 5:
-                an = request.POST.get('q' + str(question.id) + '_year')
-                if an != "":
-                    mois = request.POST.get('q' + str(question.id) + '_month')
-                    jour = request.POST.get('q' + str(question.id) + '_day')
-                    reponseaquestion = str(an) + '-' + str(mois) + '-' + str(jour)
+        assistant = request.user
+        actions = request.POST.keys()
+        for action in actions:
+            if action.startswith('remove_'):
+                x = action[len('remove_'):]
+                Klass.objects.filter(personne__id=pid, assistant__id=request.user.id, fiche=x ).delete()
+                messages.add_message(request, messages.ERROR, 'Card # ' + str(x) + ' removed')
+                continue
+            elif action.startswith('current_') or action.startswith('add_'):
+                if action.startswith('current_'):
+                    x = action[len('current_'):]
                 else:
-                    reponseaquestion = ''
-            else:
-                reponseaquestion = request.POST.get('q' + str(question.id))
-            if reponseaquestion:
-                champ = quest.varname
-                AFSF.objects.update_or_create(
-                     personne_id=pid, assistant=assistant, AFSF_order=ordre,
-                    # update these fields, or create a new object with these values
-                    defaults={
-                        champ : reponseaquestion,
-                    }
-                )
-        now = datetime.datetime.now().strftime('%H:%M:%S')
-        if 'add' in request.POST:
-            ordre = AFSF.objects.filter(personne__id=pid, assistant__id=request.user.id).count()
-            ordre = ordre + 1
-            AFSF.objects.create(personne_id=pid, assistant=assistant, AFSF_order=ordre,
-                # update these fields, or create a new object with these values
-            )
-            messages.add_message(request, messages.WARNING, 'Data saved and file added at ' + now)
-        else:
-             messages.add_message(request, messages.WARNING, 'Data saved at ' + 'time' + now)
+                    x = action[len('add_'):]
+                    enregistrement = Klass.objects.filter(personne__id=pid, assistant__id=request.user.id).order_by('-fiche').first()
+                    ordre = enregistrement.ordre + 1
+                    Klass.objects.create(personne_id=pid, assistant=assistant, fiche=ordre,
+                        # update these fields, or create a new object with these values
+                    )
+                    messages.add_message(request, messages.WARNING, '1 File added ')
+                logging.warning("x {}".format(x))
+                logging.warning(questionstoutes.count())
+                for question in questionstoutes:
+                    if question.typequestion_id == 5:
+                        an = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_year')
+                        if an != "":
+                            mois = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_month' )
+                            jour = request.POST.get('q' + str(question.id)+ 'Z_Z' + str(x) + '_day' )
+                            reponseaquestion = str(an) + '-' + str(mois) + '-' + str(jour)
+                        else:
+                            reponseaquestion = ''
+                    elif question.typequestion_id == 23 or question.typequestion_id == 11:
+                        reponse_liste = request.POST.getlist('q' + str(question.id) + 'Z_Z' + str(x))
+                        if reponse_liste:
+                            reponseaquestion = ";".join(reponse_liste)
+#                            reponseaquestion = reponseaquestion + ';'
+                    else:
+                        reponseaquestion = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x))
+                    if reponseaquestion:
+                        champ = question.varname
+                        logging.warning(champ)
+                        Klass.objects.update_or_create(
+                                    personne_id=pid, assistant=assistant, fiche=x,
+                                    # update these fields, or create a new object with these values
+                                    defaults={
+                                        champ : reponseaquestion,
+                                    }
+                                )
+                now = datetime.datetime.now().strftime('%H:%M:%S')
+                messages.add_message(request, messages.WARNING, 'Data saved at ' + now)
 
         return render(request, 'saveafsf.html',
                       {
@@ -259,7 +279,6 @@ def saveafsf(request, qid, pid, province):
                           'fiches': fiches
                       }
                       )
-
     else:
          return render(request, 'saveafsf.html',
                   {
@@ -272,3 +291,108 @@ def saveafsf(request, qid, pid, province):
                       'fiches': fiches
                   }
                   )
+
+@login_required(login_url=settings.LOGIN_URI)
+def saveafsf(request, qid, pid, province):
+    questionstoutes = Question.objects.filter(questionnaire__id=qid)
+    enfants = Question.objects.filter(question__parent__id__gt=0, questionnaire=qid)
+    ascendancesM = {rquestion.id for rquestion in Question.objects.filter(pk__in=enfants)}
+    ascendancesF = set()  # liste sans doublons
+    for rquestion in questionstoutes:
+        for fille in Question.objects.filter(parent__id=rquestion.id):
+            # #va chercher si a des filles (question_ fille)
+            ascendancesF.add(fille.id)
+#    questiontable = {"100": "afsf", }
+#    Klass = apps.get_model('dataentry', questiontable[str(qid)])
+    fiches = Reponsesafsf.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid)
+    donnees= fiches.values_list('fiche', flat=True).distinct()
+
+    if request.method == 'POST':
+        assistant = request.user
+        actions = request.POST.keys()
+        for action in actions:
+            if action.startswith('remove_'):
+                x = action[len('remove_'):]
+                Reponsesafsf.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid, fiche=x ).delete()
+                messages.add_message(request, messages.ERROR, 'Card # ' + str(x) + ' removed')
+                continue
+            elif action.startswith('current_') or action.startswith('add_'):
+                if action.startswith('current_'):
+                    x = action[len('current_'):]
+                else:
+                    x = action[len('add_'):]
+                    enregistrement = Reponsesafsf.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid).order_by(
+                        '-fiche').first()
+                    ordre = enregistrement.fiche + 1
+                    Reponsesafsf.objects.update_or_create(
+                        personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=10000, fiche=ordre,
+                        # update these fields, or create a new object with these values
+                        defaults={
+                            'reponsetexte': 10000,
+                        }
+                    )
+                    messages.add_message(request, messages.WARNING, '1 File added ')
+
+                for question in questionstoutes:
+                    if question.typequestion_id == 5:
+                        an = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_year')
+                        if an != "":
+                            mois = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_month' )
+                            jour = request.POST.get('q' + str(question.id)+ 'Z_Z' + str(x) + '_day' )
+                            reponseaquestion = str(an) + '-' + str(mois) + '-' + str(jour)
+                        else:
+                            reponseaquestion = ''
+                    elif question.typequestion_id == 23 or question.typequestion_id == 11:
+                        reponse_liste = request.POST.getlist('q' + str(question.id) + 'Z_Z' + str(x))
+                        if reponse_liste:
+                            reponseaquestion = ";".join(reponse_liste)
+#                            reponseaquestion = reponseaquestion + ';'
+                    else:
+                        reponseaquestion = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x))
+                    if reponseaquestion:
+                        Reponsesafsf.objects.update_or_create(
+                            personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=question.id, fiche=x,
+                                    # update these fields, or create a new object with these values
+                                    defaults={
+                                        'reponsetexte' : reponseaquestion,
+                                    }
+                                )
+                now = datetime.datetime.now().strftime('%H:%M:%S')
+                messages.add_message(request, messages.WARNING, 'Data saved at ' + now)
+
+        return render(request, 'saveafsf.html',
+                      {
+                          'qid': qid,
+                          'pid': pid,
+                          'province': province,
+                          'questions': questionstoutes,
+                          'ascendancesM': ascendancesM,
+                          'ascendancesF': ascendancesF,
+                          'fiches': fiches,
+                          'donnees': donnees
+                      }
+                      )
+    else:
+        if Reponsesafsf.objects.filter(personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid).count() == 0:
+            Reponsesafsf.objects.update_or_create(
+                personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=10000, fiche=1,
+                # update these fields, or create a new object with these values
+                defaults={
+                    'reponsetexte': 10000,
+                }
+            )
+            fiches = Reponsesafsf.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid)
+            donnees = fiches.values_list('fiche', flat=True).distinct()
+
+        return render(request, 'saveafsf.html',
+                      {
+                          'qid': qid,
+                          'pid': pid,
+                          'province': province,
+                          'questions': questionstoutes,
+                          'ascendancesM': ascendancesM,
+                          'ascendancesF': ascendancesF,
+                          'fiches': fiches,
+                          'donnees': donnees
+                      }
+                      )

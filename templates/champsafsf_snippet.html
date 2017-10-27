@@ -4,33 +4,37 @@
 {% if type == "DATE" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
-        <td class=" {{ classe }} ">{% fait_date questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=fiche.AFSF_order %}</td>
+        <td class=" {{ classe }} ">{% fait_date questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>
     {% endautoescape %}
 {% elif type == "BOOLEAN" or type == "DICHO" or type == "DICHOU" or type == "DICHON" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
-        <td class=" {{ classe }} ">{% fait_dichou questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=fiche.AFSF_order %}</td>{% endautoescape %}
+        <td class=" {{ classe }} ">{% fait_dichou questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
 {% elif type == "STRING" or type == "NUMBER" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
-        <td class=" {{ classe }} ">{% fait_textechar questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=repetition ordre=fiche.AFSF_order %}</td>
+        <td class=" {{ classe }} ">{% fait_textechar questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=repetition ordre=ordre %}</td>
     {% endautoescape %}
-{% elif type == "PROVINCE"  or type == "PAYS" or type == "LANGUE" or type == "VIOLATION" %}
+{% elif type == "PROVINCE" or type == "PAYS" or type == "LANGUE" or type == "VIOLATION" %}
     {% autoescape off %}
          <td class=" {{ classe }} ">{{ textequest }}</td>
-         <td class=" {{ classe }} ">{% fait_table questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=fiche.AFSF_order %}</td>{% endautoescape %}
+         <td class=" {{ classe }} ">{% fait_table questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
 {% elif type == "CATEGORIAL" %}
     {% autoescape off %}
          <td class=" {{ classe }} ">{{ textequest }}</td>
-         <td class=" {{ classe }} ">{% fait_reponse questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=fiche.AFSF_order %}</td>{% endautoescape %}
-{% elif type == "HCR20"  or type ==  "POSOLOGIE" or type == "VICTIME" %}
+         <td class=" {{ classe }} ">{% fait_reponse questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
+{% elif type == "HCR20" or  type == "Checkboxes1" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
-        <td class=" {{ classe }} ">{% fait_table_valeurs questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=fiche.AFSF_order %}</td>{% endautoescape %}
+        <td class=" {{ classe }} ">{% fait_testurine questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
+{% elif type ==  "POSOLOGIE" or type == "VICTIME" %}
+    {% autoescape off %}
+        <td class=" {{ classe }} ">{{ textequest }}</td>
+        <td class=" {{ classe }} ">{% fait_table_valeurs questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
 {% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
     {% autoescape off %}
          <td class=" {{ classe }} ">{{ textequest }}</td>
-         <td class=" {{ classe }} ">{% fait_table_valeurs_prov questid type persid=persid parent=parent relation=relation cible=cible province=province uid=user.id ordre=fiche.AFSF_order %}</td>{% endautoescape %}
+         <td class=" {{ classe }} ">{% fait_table_valeurs_prov questid type persid=persid parent=parent relation=relation cible=cible province=province uid=user.id ordre=ordre %}</td>{% endautoescape %}
 {% else %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }} -- Autre type : {{ type }} -- {{ qvarname}}</td>

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Reponse, AFSF, Question
+from dataentry.models import Reponse, Reponsesafsf, Question
 from django import forms
 
 register = template.Library()
@@ -23,7 +23,7 @@ def fait_table(qid,type, *args, **kwargs):
     Klass = apps.get_model('dataentry', tableext)
     # Klass = apps.get_model('dataentry'', typetable[b])
     listevaleurs = Klass.objects.all()
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
     liste = [('','')]
     for valeur in listevaleurs:
        vid=str(valeur.id)
@@ -50,20 +50,20 @@ def fait_reponse(qid,b, *args, **kwargs):
 
     listevaleurs = Reponse.objects.filter(question__id=qid, )
     nombrelistevaleurs = Reponse.objects.filter(question__id=qid).count()
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
     liste = []
     for valeur in listevaleurs:
         vid = valeur.reponse_valeur
         nen = valeur.reponse_en
         liste.append((vid, nen))
-    if nombrelistevaleurs < 5:
-        question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
-    else:
-        liste.append(('',''))
-        question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
+#    if nombrelistevaleurs < 5:
+#        question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
+#    else:
+    liste.append(('',''))
+    question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
 #   return question.render(name, defaultvalue)
-    return enlevelisttag(question.render(name, defaultvalue))
+    return question.render(name, defaultvalue)
 
 @register.simple_tag
 def fait_table_valeurs(qid,type, *args, **kwargs):
@@ -81,7 +81,7 @@ def fait_table_valeurs(qid,type, *args, **kwargs):
     Klass = apps.get_model('dataentry', tableext)
     # Klass = apps.get_model('dataentry', typetable[b])
     listevaleurs = Klass.objects.all()
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
     liste = [('','')]
     for valeur in listevaleurs:
        vid=str(valeur.reponse_valeur)
@@ -110,7 +110,7 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     Klass = apps.get_model('dataentry', tableext)
     # Klass = apps.get_model('dataentry', typetable[b])
     listevaleurs = Klass.objects.filter(province__id = province)
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
     liste = [('','')]
     for valeur in listevaleurs:
        vid=str(valeur.reponse_valeur)
@@ -122,30 +122,6 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     return question.render(name, defaultvalue)
 
 
-#Utlitaires generaux
-@register.filter
-def get_item(dictionary, key):
-    return dictionary.get(key)
-
-
-def enlevelisttag(texte):
-    ## pour mettre les radiobutton sur une seule ligne
-    texte = re.sub(r"(<ul[^>]*>)",r"", texte)
-    texte = re.sub(r"(<li[^>]*>)",r"", texte)
-    texte = re.sub(r"(</li>)",r"", texte)
-    return re.sub(r"(</ul>)",r" ", texte)
-
-def fait_id(qid, cible, *args, **kwargs):
-    ##fail l'ID pour javascripts ou autre
-    relation = kwargs['relation']
-
-    IDCondition = "q" + str(qid)
-    if relation != '' and cible != '':
-        IDCondition = 'row-' + str(qid) + 'X' +  str(relation) + 'X' +  str(cible)
-
-    return IDCondition
-
-
 @register.simple_tag
 def fait_dichou(qid,type, *args, **kwargs):
     personneid = kwargs['persid']
@@ -153,17 +129,16 @@ def fait_dichou(qid,type, *args, **kwargs):
     cible = kwargs['cible']
     assistant = kwargs['uid']
     ordre = kwargs['ordre']
+
     defaultvalue = fait_default(personneid, qid, assistant=assistant, ordre=ordre)
     IDCondition = fait_id(qid,cible,relation=relation)
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
 
     if type == "DICHO":
         liste = [('',''),(1, 'Yes: In custody'),(2, 'Yes: Out of custody'),(100, 'No'),(97, 'Unknown'),(98, 'NA')]
-        name = "q" + str(qid)
         question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
     else:
-        liste = [(1, 'Yes'),(0, 'No'),(98, 'NA'), (99,'Unknown')]
-        name = "q" + str(qid)
+        liste = [(1, 'Yes'),(100, 'No'), (97,'Unknown'),(98, 'NA')]
         question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))
@@ -180,17 +155,18 @@ def fait_date(qid,b, *args, **kwargs):
     mois = ''
     jour = ''
     defff = ''
-    question = Question.objects.get(pk=qid)
-    variable = question.varname
-    existe = AFSF.objects.filter(personne__id = personneid, assistant__id = assistant, AFSF_order=ordre).count()
+
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid,
+                                         fiche=ordre).count()
     if existe > 0:
-        ancienne = AFSF.objects.get(personne__id = personneid, assistant__id = assistant, AFSF_order=ordre)
-        defff = ancienne.__dict__.get(variable)
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid,
+                                            fiche=ordre)
+        defff = ancienne.reponsetexte
         if defff:
             an, mois, jour = defff.split('-')
 
     IDCondition = fait_id(qid, cible, relation=relation)
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
 
     years = {x:x for x in  [''] + range(1910,2019)}
     days = {x:x for x in  [''] + range(1,32)}
@@ -211,7 +187,7 @@ def fait_textechar(qid,type, *args, **kwargs):
     ordre = kwargs['ordre']
     defaultvalue = fait_default(personneid, qid, assistant=assistant, ordre=ordre)
     IDCondition = fait_id(qid,cible,relation=relation)
-    name = "q" + str(qid)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
     if type == 'STRING':
         question = forms.TextInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
     else:
@@ -219,19 +195,74 @@ def fait_textechar(qid,type, *args, **kwargs):
 
     return question.render(name, defaultvalue)
 
+@register.simple_tag
+def fait_testurine(qid,type, *args, **kwargs):
+    personneid = kwargs['persid']
+    relation = kwargs['relation']
+    cible = kwargs['cible']
+    assistant = kwargs['uid']
+    ordre = kwargs['ordre']
+    defff = ''
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre).count()
+    if existe > 0:
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre)
+        defff = ancienne.reponsetexte
+    defaultvalue = re.sub(r"(;)",r",", defff)
+    defaultvalue = '(' + defaultvalue + ')'
+    IDCondition = fait_id(qid,cible,relation=relation)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
+    if type == 'HCR20':
+        liste = [(0 ,'Negative for drugs/alcohol'),(1, '+ ethanol'),(2, '+ cannabinoids'),(3, '+ opiates'),
+                (4, '+ amphetamines'),(5, '+ barbituates'),(6, '+ oxycodone'),(7, '+ methadone'),(8 , '+ benzodiazepines'),
+                (9, '+ cocaine metabolites'),(998, '+ something else')]
+    else:
+        liste = [(998, 'Other'), (1, 'Psychiatry'), (2, 'Psychology'), (3, 'Nurse practitioner'),
+                 (4, 'Injection clinic'), (5, 'Community forensic MH specialist'), (6, 'Occupational therapy'),]
+
+    question = forms.CheckboxSelectMultiple(choices = liste, attrs={'id': IDCondition,'name': name, })
+
+    return question.render(name, defaultvalue)
+
+#Utlitaires generaux
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 
 def fait_default(personneid, qid, *args, **kwargs):
+    ##fail la valeur par deffaut
+    assistant = kwargs['assistant']
+    ordre = kwargs['ordre']
+    defff = ''
+
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre).count()
+    if existe > 0:
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre)
+        defff = ancienne.reponsetexte
+
+    return defff
+
+def fait_defaultVide(personneid, qid, *args, **kwargs):
     ##fail la valeur par deffaut
     assistant = kwargs['assistant']
     ordre  = kwargs['ordre']
     defff = ''
 
-    question = Question.objects.get(pk=qid)
-    variable = question.varname
-    existe = AFSF.objects.filter(personne__id = personneid, assistant__id = assistant, AFSF_order=ordre).count()
-    if existe > 0:
-        ancienne = AFSF.objects.get(personne__id = personneid, assistant__id = assistant, AFSF_order=ordre)
-        defff = ancienne.__dict__.get(variable)
-
     return defff
 
+def enlevelisttag(texte):
+    ## pour mettre les radiobutton sur une seule ligne
+    texte = re.sub(r"(<ul[^>]*>)",r"", texte)
+    texte = re.sub(r"(<li[^>]*>)",r"", texte)
+    texte = re.sub(r"(</li>)",r"", texte)
+    return re.sub(r"(</ul>)",r" ", texte)
+
+def fait_id(qid, cible, *args, **kwargs):
+    ##fail l'ID pour javascripts ou autre
+    relation = kwargs['relation']
+
+    IDCondition = ''
+    if relation != '' and cible != '':
+        IDCondition = 'row-' + str(qid) + 'X' +  str(relation) + 'X' +  str(cible)
+
+    return IDCondition
