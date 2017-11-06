@@ -24,10 +24,17 @@
        <div class="tabbertab">
            <form method="post" action="">
            {% csrf_token %}
-           <h3>Socio demo</h3><b>Socio demo questions</b>
+           <h3>Non repetitive</h3><b>For non repetitives questionnaires</b>
             <input name="verdictid1" type="hidden" value="100" />
             <input name="audienceid1" type="hidden" value="100" />
-            <table>
+                <ul>
+                Select one province, one case and one questionnaire. These questionnaires are made to code
+                    <li>the sociodemographic informations</li>
+                     <li>the Index hospitalization,</li>
+                     <li> the Index verdict (the NCR verdict linked with the hospitalization) and</li>
+                     <li>the last Review Board Hearing</li>
+                </ul>
+               <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Select Province</td><td><select name="provinceid">
                     <option value="">Select a province</option>
@@ -44,101 +51,28 @@
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
                     <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
-                         {% if questionnaire.id == 4 %}
-                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
-                        {% endif %}
+                     {% if questionnaire.id == 4 or questionnaire.id == 10 or questionnaire.id == 11 or questionnaire.id == 20 or questionnaire.id == 21 or questionnaire.id == 1000 %}
+                        <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                    {% endif %}
                     {% endfor %}
                 </select></td></tr>
             </table>
                 <button type="submit" name="Choisir1">Choose</button>
         </form>
        </div>
-        <div class="tabbertab">
-           <form method="post" action="">
-           {% csrf_token %}
-           <h3>Verdict</h3><b>Verdict questionnaires</b>
-            <input name="audienceid2" type="hidden" value="100" />
-            <table>
-                <tr><td></td><td></td></tr>
-                <tr><td>Select Province</td><td><select name="provinceid">
-                    <option value="">Select a province</option>
-                    {% for province in provinces %}
-                    <option value="{{province.id}}">{{ province.nom_en}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Personne</td><td><select name="personneid">
-                    <option value="">Select a case</option>
-                    {% for personne in personnes %}
-                    <option value="{{personne.id}}">{{ personne.code}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Questionnaire</td><td><select name="questionnaireid">
-                    <option value="">Select a questionnaire</option>
-                    {% for questionnaire in questionnaires %}
-                         {% if questionnaire.id == 10 or questionnaire.id == 11 %}
-                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
-                        {% endif %}
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Verdict</td><td><select name="verdictid2">
-                    <option value="">Select a verdict</option>
-                    {% for verdict in verdicts %}
-                    <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-            </table>
-
-                <button type="submit" name="Choisir2">Choose</button>
-             </form>
-        </div>
-
-      <div class="tabbertab">
-           <form method="post" action="">
-           {% csrf_token %}
-           <h3>Hearing</h3><b>Hearing questionnaires</b>
-            <table>
-                <tr><td></td><td></td></tr>
-                <tr><td>Select Province</td><td><select name="provinceid">
-                <option value="">Select a province</option>
-                    {% for province in provinces %}
-                    <option value="{{province.id}}">{{ province.nom_en}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Personne</td><td><select name="personneid">
-                    <option value="">Select a case</option>
-                    {% for personne in personnes %}
-                    <option value="{{personne.id}}">{{ personne.code}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Questionnaire</td><td><select name="questionnaireid">
-                    <option value="">Select a questionnaire</option>
-                    {% for questionnaire in questionnaires %}
-                         {% if questionnaire.id  == 20 or questionnaire.id  == 21 or questionnaire.id  == 22 %}
-                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
-                        {% endif %}
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Verdict</td><td><select name="verdictid3">
-                    <option value="">Select a verdict</option>
-                    {% for verdict in verdicts %}
-                    <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-                <tr><td>Hearing</td><td><select name="audienceid3">
-                    <option value="">Select a hearing</option>
-                    {% for audience in audiences %}
-                    <option value="{{audience.id}}">{{ audience.nom_en}}</option>
-                    {% endfor %}
-                    </select></td></tr>
-            </table>
-            <button type="submit" name="Choisir3">Choose</button>
-           </form>
-    </div>
 
        <div class="tabbertab">
            <form method="post" action="">
            {% csrf_token %}
-           <h3>AFSF</h3><b>AFSF ou autre</b>
+           <h3>Repetitives</h3><b>For all repetitives questionnaires</b>
+                <ul>
+                Select one province, one case and one questionnaire. You will be able to add as many card as there are events.
+                    These questionnaires are made to code:
+                     <li>the sociodemographic informations which can change over time (past and future)</li>
+                     <li>all the hospitalization except the Index one (past and future)</li>
+                     <li>minimal informations from all Review Board Hearings (past and future)</li>
+                </ul>
+
             <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Select Province</td><td><select name="provinceid">
@@ -156,7 +90,7 @@
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
                     <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
-                         {% if questionnaire.id == 100 or questionnaire.id == 200 or questionnaire.id == 300 or questionnaire.id == 400 or questionnaire.id == 171 %}
+                         {% if questionnaire.id == 2000 %}
                             <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
                         {% endif %}
                     {% endfor %}

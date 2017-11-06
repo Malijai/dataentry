@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Resultatrepetntp2, Reponsentp2
+from dataentry.models import Reponse, Resultatrepetntp2, Question
 from django import forms
 
 register = template.Library()
@@ -48,8 +48,8 @@ def fait_reponse(qid,b, *args, **kwargs):
     defaultvalue = fait_default(personneid, qid, assistant=assistant, ordre=ordre)
     IDCondition = fait_id(qid,cible,relation=relation)
 
-    listevaleurs = Reponsentp2.objects.filter(question__id=qid, )
-    nombrelistevaleurs = Reponsentp2.objects.filter(question__id=qid).count()
+    listevaleurs = Reponse.objects.filter(question__id=qid, )
+    nombrelistevaleurs = Reponse.objects.filter(question__id=qid).count()
     name = "q" + str(qid) + "Z_Z" + str(ordre)
     liste = []
     for valeur in listevaleurs:
@@ -121,6 +121,7 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
 
     return question.render(name, defaultvalue)
 
+
 @register.simple_tag
 def fait_dichou(qid,type, *args, **kwargs):
     personneid = kwargs['persid']
@@ -134,13 +135,47 @@ def fait_dichou(qid,type, *args, **kwargs):
     name = "q" + str(qid) + "Z_Z" + str(ordre)
 
     if type == "DICHO":
-        liste = [(1, 'Yes'), (0, 'No')]
+        liste = [('',''),(1, 'Yes: In custody'),(2, 'Yes: Out of custody'),(100, 'No'),(97, 'Unknown'),(98, 'NA')]
+        question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
     else:
-        liste = [(1, 'Yes'), (0, 'No'), (98, 'NA'), (99, 'Unknown')]
-
-    question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
+        liste = [(1, 'Yes'),(100, 'No'), (97,'Unknown'),(98, 'NA')]
+        question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))
+
+@register.simple_tag
+def fait_date(qid,b, *args, **kwargs):
+    personneid = kwargs['persid']
+    relation = kwargs['relation']
+    cible = kwargs['cible']
+    assistant = kwargs['uid']
+    ordre = kwargs['ordre']
+
+    an = ''
+    mois = ''
+    jour = ''
+    defff = ''
+
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid,
+                                         fiche=ordre).count()
+    if existe > 0:
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid,
+                                            fiche=ordre)
+        defff = ancienne.reponsetexte
+        if defff:
+            an, mois, jour = defff.split('-')
+
+    IDCondition = fait_id(qid, cible, relation=relation)
+    name = "q" + str(qid) + "Z_Z" + str(ordre)
+
+    years = {x:x for x in  [''] + range(1910,2019)}
+    days = {x:x for x in  [''] + range(1,32)}
+    months=(('',''),(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),(9,'Sept'),(10,'Oct'),(11,'Nov'),(12,'Dec'))
+    year = forms.Select(choices = years.iteritems(), attrs={'id': IDCondition, 'name': name + '_year', })
+    month = forms.Select(choices = months, attrs={ 'name': name + '_month' })
+    day = forms.Select(choices = days.iteritems(), attrs={'name': name + '_day' })
+# #name=q69_year, id=row...
+    return year.render(name + '_year' , an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
 
 
 @register.simple_tag
@@ -160,40 +195,33 @@ def fait_textechar(qid,type, *args, **kwargs):
 
     return question.render(name, defaultvalue)
 
-
 @register.simple_tag
-def fait_date(qid,b, *args, **kwargs):
+def fait_testurine(qid,type, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
     assistant = kwargs['uid']
     ordre = kwargs['ordre']
-
-    an = ''
-    mois = ''
-    jour = ''
     defff = ''
-
-    existe = Resultatrepetntp2.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid,
-                                         fiche=ordre).count()
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre).count()
     if existe > 0:
-        ancienne = Resultatrepetntp2.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid,
-                                            fiche=ordre)
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre)
         defff = ancienne.reponsetexte
-        if defff:
-            an, mois, jour = defff.split('-')
-
-    IDCondition = fait_id(qid, cible, relation=relation)
+    defaultvalue = re.sub(r"(;)",r",", defff)
+    defaultvalue = '(' + defaultvalue + ')'
+    IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid) + "Z_Z" + str(ordre)
+    if type == 'HCR20':
+        liste = [(0 ,'Negative for drugs/alcohol'),(1, '+ ethanol'),(2, '+ cannabinoids'),(3, '+ opiates'),
+                (4, '+ amphetamines'),(5, '+ barbituates'),(6, '+ oxycodone'),(7, '+ methadone'),(8 , '+ benzodiazepines'),
+                (9, '+ cocaine metabolites'),(998, '+ something else')]
+    else:
+        liste = [(998, 'Other'), (1, 'Psychiatry'), (2, 'Psychology'), (3, 'Nurse practitioner'),
+                 (4, 'Injection clinic'), (5, 'Community forensic MH specialist'), (6, 'Occupational therapy'),]
 
-    years = {x:x for x in  [''] + range(1910,2019)}
-    days = {x:x for x in  [''] + range(1,32)}
-    months=(('',''),(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),(9,'Sept'),(10,'Oct'),(11,'Nov'),(12,'Dec'))
-    year = forms.Select(choices = years.iteritems(), attrs={'id': IDCondition, 'name': name + '_year', })
-    month = forms.Select(choices = months, attrs={ 'name': name + '_month' })
-    day = forms.Select(choices = days.iteritems(), attrs={'name': name + '_day' })
-# #name=q69_year, id=row...
-    return year.render(name + '_year' , an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
+    question = forms.CheckboxSelectMultiple(choices = liste, attrs={'id': IDCondition,'name': name, })
+
+    return question.render(name, defaultvalue)
 
 #Utlitaires generaux
 @register.filter
@@ -207,9 +235,9 @@ def fait_default(personneid, qid, *args, **kwargs):
     ordre = kwargs['ordre']
     defff = ''
 
-    existe = Resultatrepetntp2.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre).count()
+    existe = Reponsesafsf.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre).count()
     if existe > 0:
-        ancienne = Resultatrepetntp2.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre)
+        ancienne = Reponsesafsf.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid, fiche=ordre)
         defff = ancienne.reponsetexte
 
     return defff

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Resultat, Reponse, Question
+from dataentry.models import Resultat, Reponsentp2, Questionntp2, Resultatntp2
 from django import forms
 
 register = template.Library()
@@ -133,8 +133,8 @@ def fait_reponse(qid,b, *args, **kwargs):
     defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
-    listevaleurs = Reponse.objects.filter(question__id=qid, )
-    nombrelistevaleurs = Reponse.objects.filter(question__id=qid).count()
+    listevaleurs = Reponsentp2.objects.filter(question_id=qid, )
+    nombrelistevaleurs = Reponsentp2.objects.filter(question_id=qid).count()
     name = "q" + str(qid)
     liste = []
     for valeur in listevaleurs:
@@ -229,9 +229,9 @@ def fait_default(personneid, qid, vid, aid, *args, **kwargs):
     ##fail la valeur par deffaut
     assistant = kwargs['assistant']
     defff = ''
-    existe = Resultat.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).count()
+    existe = Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).count()
     if existe > 0:
-        ancienne = Resultat.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
+        ancienne = Resultatntp2.objects.get(personne__id=personneid, questionn__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
         defff = ancienne.reponsetexte
 
     return defff

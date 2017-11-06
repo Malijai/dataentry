@@ -1,5 +1,6 @@
-{% load formulaires %}
+{% load formulairesntp2 %}
 {% with type=typequest|stringformat:"s" %}
+
 {% if type == "STRING" or type == "NUMBER" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>

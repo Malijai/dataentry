@@ -249,65 +249,70 @@ class Resultat(models.Model):
     class Meta:
         unique_together = (('personne', 'question','verdict','audience','assistant'),)
 
-DEFAULT_DATE = '0000-00-00'
-class AFSF(models.Model):
+
+DEFAULT_PARENT_ID = 0
+class Questionntp2(models.Model):
+    questionno = models.IntegerField()
+    questionen = models.CharField(max_length=255,)
+    questionnaire = models.ForeignKey(Questionnaire)
+    typequestion = models.ForeignKey(Typequestion)
+    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID)
+    relation = models.CharField(blank=True, null=True, max_length=45,)
+    cible = models.CharField(blank=True, null=True, max_length=45,)
+    varname = models.CharField(blank=True, null=True, max_length=45,)
+    aidefr = models.TextField(blank=True, null=True)
+    aideen = models.TextField(blank=True, null=True)
+    qstyle = models.CharField(blank=True, null=True, max_length=45,)
+
+    class Meta:
+        ordering = ['questionno']
+
+    def __str__(self):
+        return '%s' % self.questionen
+
+    def __unicode__(self):
+        return u'%s' % self.questionen
+
+class Reponsentp2(models.Model):
+    question = models.ForeignKey(Questionntp2)
+    reponse_no = models.CharField(max_length=200)
+    reponse_valeur = models.CharField(max_length=200)
+    reponse_en = models.CharField(max_length=200,)
+    reponse_fr = models.CharField(max_length=200,)
+    questionnaire = models.ForeignKey(Questionnaire)
+
+    class Meta:
+       ordering = ['reponse_valeur']
+
+    def __str__(self):
+        return '%s' % self.nom_en
+
+    def __unicode__(self):
+        return u'%s' % self.nom_en
+
+
+DEFAULT_VERD = 100
+class Resultatntp2(models.Model):
     personne = models.ForeignKey(Personne)
+    question = models.ForeignKey(Questionntp2)
     assistant = models.ForeignKey(User)
-    fiche = models.IntegerField(db_index=True)
-    AFSF3 = models.CharField(max_length=250, blank=True, null=True)
-    AFSF2DATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF3DATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF5 = models.IntegerField(blank=True, null=True)
-    AFSF9 = models.IntegerField(blank=True, null=True)
-    AFSF9a = models.IntegerField(blank=True, null=True)
-    AFSF9aDATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF9aL = models.IntegerField(blank=True, null=True)
-    AFSF9b = models.IntegerField(blank=True, null=True)
-    AFSF9bDATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF9bL = models.IntegerField(blank=True, null=True)
-    AFSF9c = models.IntegerField(blank=True, null=True)
-    AFSF9cDATE = models.CharField(max_length=250,blank=True, null=True)
-    AFSF9cL = models.IntegerField(blank=True, null=True)
-    AFSF9d = models.IntegerField(blank=True, null=True)
-    AFSF9dDATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF9dL = models.IntegerField(blank=True, null=True)
-    AFSF9e = models.IntegerField(blank=True, null=True)
-    AFSF9eDATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF9eL = models.IntegerField(blank=True, null=True)
-    AFSF18 = models.IntegerField(blank=True, null=True)
-    AFSF18bDATE = models.CharField(max_length=250, blank=True, null=True)
-    AFSF18a = models.IntegerField(blank=True, null=True)
-    AFSF15 = models.IntegerField(blank=True, null=True)
-    AFSF15a = models.IntegerField(blank=True, null=True)
-    AFSF15b = models.IntegerField(blank=True, null=True)
-    AFSF15c = models.IntegerField(blank=True, null=True)
-    AFSF15d = models.IntegerField(blank=True, null=True)
-    AFSF15e = models.IntegerField(blank=True, null=True)
-    AFSF15f = models.IntegerField(blank=True, null=True)
-    AFSF16a = models.CharField(max_length=250, blank=True, null=True)
-    AFSF16b = models.CharField(max_length=250, blank=True, null=True)
-    AFSF16c = models.CharField(max_length=250, blank=True, null=True)
-    AFSF6 = models.IntegerField(blank=True, null=True)
-    AFSF6a = models.IntegerField(blank=True, null=True)
-    AFSF6b = models.IntegerField(blank=True, null=True)
-    AFSF6C = models.CharField(max_length=250, blank=True, null=True)
-    AFSF6aTxt = models.CharField(max_length=250, blank=True, null=True)
-    AFSF6bTxt = models.CharField(max_length=250, blank=True, null=True)
-    AFSF6cTxt = models.CharField(max_length=250, blank=True, null=True)
-    AFSF17 = models.IntegerField(blank=True, null=True)
+    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD)
+    audience = models.ForeignKey(Audience, default=DEFAULT_VERD)
+    reponsetexte = models.CharField(max_length=200, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('personne','assistant','fiche'))
+        unique_together = (('personne', 'question','verdict','audience','assistant'),)
 
 
-class Reponsesafsf(models.Model):
+DEFAULT_DATE = '0000-00-00'
+class Resultatrepetntp2(models.Model):
     personne = models.ForeignKey(Personne)
     assistant = models.ForeignKey(User)
     questionnaire =  models.ForeignKey(Questionnaire,db_index=True)
     fiche = models.IntegerField(db_index=True)
-    question = models.ForeignKey(Question, db_index=True)
+    question = models.ForeignKey(Questionntp2, db_index=True)
     reponsetexte = models.CharField(max_length=200, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
