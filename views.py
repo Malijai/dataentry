@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import  render, redirect
+from django.shortcuts import  render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from .models import Questionnaire, Question, Resultat, Personne, Province, Verdict, Audience, Resultatrepetntp2,Questionntp2
 from django.conf import settings
