@@ -320,3 +320,5 @@ class Resultatrepetntp2(models.Model):
 
     class Meta:
         unique_together = (('personne', 'assistant', 'questionnaire', 'question', 'fiche',))
+
+        ordering = ['personne', 'assistant', 'questionnaire', 'fiche']

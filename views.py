@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import Questionnaire, Question, Resultat, Personne, Province, Verdict, Audience, Resultatrepetntp2,Questionntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.apps import apps
 import datetime
@@ -152,8 +153,7 @@ def saverepetntp2(request, qid, pid, province):
             ascendancesF.add(fille.id)
 #    questiontable = {"100": "afsf", }
 #    Klass = apps.get_model('dataentry', questiontable[str(qid)])
-    fiches = Resultatrepetntp2.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid)
-    donnees= fiches.values_list('fiche', flat=True).distinct()
+
 
     if request.method == 'POST':
         assistant = request.user
@@ -169,16 +169,20 @@ def saverepetntp2(request, qid, pid, province):
                     x = action[len('current_'):]
                 else:
                     x = action[len('add_'):]
-                    enregistrement = Resultatrepetntp2.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid).order_by(
-                        '-fiche').first()
+                    enregistrement = Resultatrepetntp2.objects.filter(
+                                        personne__id=pid,
+                                        assistant__id=request.user.id,
+                                        questionnaire__id=qid).order_by('-fiche').first()
                     ordre = enregistrement.fiche + 1
                     Resultatrepetntp2.objects.update_or_create(
-                        personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=10000, fiche=ordre,
-                        # update these fields, or create a new object with these values
-                        defaults={
-                            'reponsetexte': 10000,
-                        }
-                    )
+                                personne_id=pid,
+                                assistant_id=request.user.id,
+                                questionnaire_id=qid,
+                                question_id=10000,
+                                fiche=ordre,
+                                # update these fields, or create a new object with these values
+                                defaults={'reponsetexte': 10000}
+                            )
                     messages.add_message(request, messages.WARNING, '1 File added ')
 
                 for question in questionstoutes:
@@ -194,39 +198,45 @@ def saverepetntp2(request, qid, pid, province):
                         reponseaquestion = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x))
                     if reponseaquestion:
                         Resultatrepetntp2.objects.update_or_create(
-                            personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=question.id, fiche=x,
+                                    personne_id=pid,
+                                    assistant_id=request.user.id,
+                                    questionnaire_id=qid,
+                                    question_id=question.id,
+                                    fiche=x,
                                     # update these fields, or create a new object with these values
-                                    defaults={
-                                        'reponsetexte' : reponseaquestion,
-                                    }
+                                    defaults={'reponsetexte': reponseaquestion}
                                 )
                 now = datetime.datetime.now().strftime('%H:%M:%S')
                 messages.add_message(request, messages.WARNING, 'Data saved at ' + now)
 
-        return render(request, 'saverepetntp2.html',
-                      {
-                          'qid': qid,
-                          'pid': pid,
-                          'province': province,
-                          'questions': questionstoutes,
-                          'ascendancesM': ascendancesM,
-                          'ascendancesF': ascendancesF,
-                          'fiches': fiches,
-                          'donnees': donnees
-                      }
-                      )
+        compte, fiches = fait_pagination(pid, qid, request)
+        return render(
+                    request,
+                    'saverepetntp2.html',
+                    {
+                        'qid': qid,
+                        'pid': pid,
+                        'province': province,
+                        'questions': questionstoutes,
+                        'ascendancesM': ascendancesM,
+                        'ascendancesF': ascendancesF,
+                        'fiches': fiches,
+                        'compte': compte,
+                    }
+                )
     else:
         if Resultatrepetntp2.objects.filter(personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid).count() == 0:
             Resultatrepetntp2.objects.update_or_create(
-                personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid, question_id=10000, fiche=1,
-                # update these fields, or create a new object with these values
-                defaults={
-                    'reponsetexte': 10000,
-                }
-            )
-            fiches = Resultatrepetntp2.objects.filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid)
-            donnees = fiches.values_list('fiche', flat=True).distinct()
+                        personne_id=pid,
+                        assistant_id=request.user.id,
+                        questionnaire_id=qid,
+                        question_id=10000,
+                        fiche=1,
+                        # update these fields, or create a new object with these values
+                        defaults={'reponsetexte': 10000}
+                    )
 
+        compte, fiches = fait_pagination(pid, qid, request)
         return render(request, 'saverepetntp2.html',
                       {
                           'qid': qid,
@@ -236,6 +246,24 @@ def saverepetntp2(request, qid, pid, province):
                           'ascendancesM': ascendancesM,
                           'ascendancesF': ascendancesF,
                           'fiches': fiches,
-                          'donnees': donnees
+                          'compte': compte,
                       }
                       )
+
+
+def fait_pagination(pid, qid, request):
+    fiche_list = Resultatrepetntp2.objects.filter(personne__id=pid, assistant__id=request.user.id,
+                                                  questionnaire__id=qid)
+    donnees = fiche_list.values_list('fiche', flat=True).distinct()
+    compte = donnees.count()
+    paginator = Paginator(donnees, 3)  # Show 5 fiches par page
+    page = request.GET.get('page')
+    try:
+        fiches = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        fiches = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        fiches = paginator.page(paginator.num_pages)
+    return compte, fiches

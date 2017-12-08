@@ -174,8 +174,7 @@ def fait_date(qid,b, *args, **kwargs):
     jour = ''
     defff = ''
 
-    existe = Resultatrepetntp2.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid,
-                                         fiche=ordre).count()
+    existe = Resultatrepetntp2.objects.filter(personne__id=personneid, assistant__id=assistant, question__id=qid,fiche=ordre).count()
     if existe > 0:
         ancienne = Resultatrepetntp2.objects.get(personne__id=personneid, assistant__id=assistant, question__id=qid,
                                             fiche=ordre)
