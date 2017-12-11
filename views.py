@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import  render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from .models import Questionnaire, Question, Resultat, Personne, Province, Verdict, Audience, Resultatrepetntp2,Questionntp2
+from .models import Questionnaire, Personne, Province, Verdict, Audience, Resultatrepetntp2, Questionntp2, Resultatntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -20,6 +20,51 @@ def SelectPersonne(request):
             if request.POST.get('questionnaireid') == '' or request.POST.get('personneid') == '' or request.POST.get('provinceid') == '':
                 messages.add_message(request, messages.ERROR, 'You have forgotten to chose at least one field')
                 return render(
+                            request,
+                            'choix.html',
+                            {
+                                'personnes': Personne.objects.all(),
+                                'questionnaires': Questionnaire.objects.all(),
+                                'provinces': Province.objects.all(),
+                                'verdicts': Verdict.objects.all(),
+                                'audiences': Audience.objects.all(),
+                            }
+                        )
+            else:
+                return redirect(
+                                saventp2,
+                                request.POST.get('questionnaireid'),
+                                request.POST.get('personneid'),
+                                request.POST.get('provinceid'),
+                                request.POST.get('verdictid1'),
+                                request.POST.get('audienceid1')
+                            )
+
+        elif 'Choisir4' in request.POST:
+            # pour le REPETITIF
+            if request.POST.get('questionnaireid') == '' or request.POST.get('personneid') == '' or request.POST.get(
+                    'provinceid') == '' :
+                messages.add_message(request, messages.ERROR, 'You have forgotten to chose at least one field')
+                return render(
+                            request,
+                            'choix.html',
+                            {
+                                'personnes': Personne.objects.all(),
+                                'questionnaires': Questionnaire.objects.all(),
+                                'provinces': Province.objects.all(),
+                                'verdicts': Verdict.objects.all(),
+                                'audiences': Audience.objects.all()
+                            }
+                        )
+            else:
+                return redirect(saverepetntp2,
+                                request.POST.get('questionnaireid'),
+                                request.POST.get('personneid'),
+                                request.POST.get('provinceid'),
+                                )
+
+    else:
+         return render(
                     request,
                     'choix.html',
                     {
@@ -28,72 +73,20 @@ def SelectPersonne(request):
                         'provinces': Province.objects.all(),
                         'verdicts': Verdict.objects.all(),
                         'audiences': Audience.objects.all(),
+                        'message':'welcome'
                     }
                 )
-            else:
-                return redirect(saventp2,
-                                    request.POST.get('questionnaireid'),
-                                    request.POST.get('personneid'),
-                                    request.POST.get('provinceid'),
-                                    request.POST.get('verdictid1'),
-                                    request.POST.get('audienceid1')
-                        )
-
-        elif 'Choisir4' in request.POST:
-            # pour le REPETITIF
-            if request.POST.get('questionnaireid') == '' or request.POST.get('personneid') == '' or request.POST.get(
-                    'provinceid') == '' :
-                messages.add_message(request, messages.ERROR, 'You have forgotten to chose at least one field')
-                return render(
-                    request,
-                    'choix.html',
-                    {
-                        'personnes': Personne.objects.all(),
-                        'questionnaires': Questionnaire.objects.all(),
-                        'provinces': Province.objects.all(),
-                        'verdicts': Verdict.objects.all(),
-                        'audiences': Audience.objects.all()
-                    }
-                )
-            else:
-                return redirect(saverepetntp2,
-                        request.POST.get('questionnaireid'),
-                        request.POST.get('personneid'),
-                        request.POST.get('provinceid'),
-                        )
-
-    else:
-         return render(
-            request,
-            'choix.html',
-            {
-                'personnes': Personne.objects.all(),
-                'questionnaires': Questionnaire.objects.all(),
-                'provinces': Province.objects.all(),
-                'verdicts': Verdict.objects.all(),
-                'audiences': Audience.objects.all(),
-                'message':'welcome'
-            }
-        )
 
 
 @login_required(login_url=settings.LOGIN_URI)
 def saventp2(request, qid, pid, province, Vid, Aid):
     #genere le questionnaire demande NON repetitif
-    questionstoutes = Questionntp2.objects.filter(questionnaire__id=qid)
-    enfants = Questionntp2.objects.filter(questionntp2__parent__id__gt=0, questionnaire=qid)
-    ascendancesM = {rquestion.id for rquestion in Questionntp2.objects.filter(pk__in=enfants)}
-    ascendancesF = set()  # liste sans doublons
-    for rquestion in questionstoutes:
-        for fille in Questionntp2.objects.filter(parent__id=rquestion.id):
-            # #va chercher si a des filles (question_ fille)
-            ascendancesF.add(fille.id)
+    ascendancesF, ascendancesM, questionstoutes = genere_questions(qid)
 
     if request.method == 'POST':
         for question in questionstoutes:
             assistant = request.user
-            quest = Questionntp2.objects.get(pk=question.id)
-            if quest.typequestion_id == 5:
+            if question.typequestion_id == 5:
                 an = request.POST.get('q' + str(question.id) + '_year')
                 if an != "":
                     mois = request.POST.get('q' + str(question.id) + '_month')
@@ -104,13 +97,13 @@ def saventp2(request, qid, pid, province, Vid, Aid):
             else:
                 reponseaquestion = request.POST.get('q' + str(question.id))
             if reponseaquestion:
-                Resultat.objects.update_or_create(
-                     personne_id=pid, question=quest, verdict_id=Vid, audience_id=Aid, assistant=assistant,
-                    # update these fields, or create a new object with these values
-                    defaults={
-                        'reponsetexte': reponseaquestion,
-                    }
-                )
+                Resultatntp2.objects.update_or_create(
+                             personne_id=pid, question_id=question.id, verdict_id=Vid, audience_id=Aid, assistant=assistant,
+                            # update these fields, or create a new object with these values
+                            defaults={
+                                'reponsetexte': reponseaquestion,
+                            }
+                        )
         now = datetime.datetime.now().strftime('%H:%M:%S')
         messages.add_message(request, messages.WARNING, 'Data saved at ' + now)
         return render(request, 'saventp2.html',
@@ -125,7 +118,6 @@ def saventp2(request, qid, pid, province, Vid, Aid):
                           'ascendancesF': ascendancesF
                       }
                       )
-
     else:
         return render(request, 'saventp2.html',
                   {
@@ -143,20 +135,10 @@ def saventp2(request, qid, pid, province, Vid, Aid):
 
 @login_required(login_url=settings.LOGIN_URI)
 def saverepetntp2(request, qid, pid, province):
-    questionstoutes = Questionntp2.objects.filter(questionnaire__id=qid)
-    enfants = Questionntp2.objects.filter(questionntp2__parent__id__gt=0, questionnaire=qid)
-    ascendancesM = {rquestion.id for rquestion in Questionntp2.objects.filter(pk__in=enfants)}
-    ascendancesF = set()  # liste sans doublons
-    for rquestion in questionstoutes:
-        for fille in Questionntp2.objects.filter(parent__id=rquestion.id):
-            # #va chercher si a des filles (question_ fille)
-            ascendancesF.add(fille.id)
-#    questiontable = {"100": "afsf", }
-#    Klass = apps.get_model('dataentry', questiontable[str(qid)])
-
+    ascendancesF, ascendancesM, questionstoutes = genere_questions(qid)
 
     if request.method == 'POST':
-        assistant = request.user
+ #       assistant = request.user
         actions = request.POST.keys()
         for action in actions:
             if action.startswith('remove_'):
@@ -174,14 +156,13 @@ def saverepetntp2(request, qid, pid, province):
                                         assistant__id=request.user.id,
                                         questionnaire__id=qid).order_by('-fiche').first()
                     ordre = enregistrement.fiche + 1
-                    Resultatrepetntp2.objects.update_or_create(
+                    Resultatrepetntp2.objects.create(
                                 personne_id=pid,
                                 assistant_id=request.user.id,
                                 questionnaire_id=qid,
                                 question_id=10000,
                                 fiche=ordre,
-                                # update these fields, or create a new object with these values
-                                defaults={'reponsetexte': 10000}
+                                reponsetexte= 10000
                             )
                     messages.add_message(request, messages.WARNING, '1 File added ')
 
@@ -198,14 +179,14 @@ def saverepetntp2(request, qid, pid, province):
                         reponseaquestion = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x))
                     if reponseaquestion:
                         Resultatrepetntp2.objects.update_or_create(
-                                    personne_id=pid,
-                                    assistant_id=request.user.id,
-                                    questionnaire_id=qid,
-                                    question_id=question.id,
-                                    fiche=x,
-                                    # update these fields, or create a new object with these values
-                                    defaults={'reponsetexte': reponseaquestion}
-                                )
+                                            personne_id=pid,
+                                            assistant_id=request.user.id,
+                                            questionnaire_id=qid,
+                                            question_id=question.id,
+                                            fiche=x,
+                                            # update these fields, or create a new object with these values
+                                            defaults={'reponsetexte': reponseaquestion}
+                                        )
                 now = datetime.datetime.now().strftime('%H:%M:%S')
                 messages.add_message(request, messages.WARNING, 'Data saved at ' + now)
 
@@ -226,15 +207,14 @@ def saverepetntp2(request, qid, pid, province):
                 )
     else:
         if Resultatrepetntp2.objects.filter(personne_id=pid, assistant_id=request.user.id, questionnaire_id=qid).count() == 0:
-            Resultatrepetntp2.objects.update_or_create(
-                        personne_id=pid,
-                        assistant_id=request.user.id,
-                        questionnaire_id=qid,
-                        question_id=10000,
-                        fiche=1,
-                        # update these fields, or create a new object with these values
-                        defaults={'reponsetexte': 10000}
-                    )
+            Resultatrepetntp2.objects.create(
+                                personne_id=pid,
+                                assistant_id=request.user.id,
+                                questionnaire_id=qid,
+                                question_id=10000,
+                                fiche=1,
+                                reponsetexte=10000
+                            )
 
         compte, fiches = fait_pagination(pid, qid, request)
         return render(request, 'saverepetntp2.html',
@@ -267,3 +247,17 @@ def fait_pagination(pid, qid, request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         fiches = paginator.page(paginator.num_pages)
     return compte, fiches
+
+
+def genere_questions(qid):
+    questionstoutes = Questionntp2.objects.filter(questionnaire__id=qid)
+    enfants = questionstoutes.select_related('typequestion', 'parent').filter(questionntp2__parent__id__gt=0)
+    ascendancesM = {rquestion.id for rquestion in questionstoutes.select_related('typequestion').filter(pk__in=enfants)}
+    ascendancesF = set()  # liste sans doublons
+    for rquestion in questionstoutes:
+        for fille in questionstoutes.select_related('typequestion').filter(parent__id=rquestion.id):
+            # #va chercher si a des filles (question_ fille)
+            ascendancesF.add(fille.id)
+    return ascendancesF, ascendancesM, questionstoutes
+
+

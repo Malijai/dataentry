@@ -231,7 +231,7 @@ def fait_default(personneid, qid, vid, aid, *args, **kwargs):
     defff = ''
     existe = Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).count()
     if existe > 0:
-        ancienne = Resultatntp2.objects.get(personne__id=personneid, questionn__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
+        ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
         defff = ancienne.reponsetexte
 
     return defff

@@ -30,38 +30,37 @@
                  <div class="tabbertab"><h3>{{ question.questionen|slice:"0:15" }}</h3><b>{{ question.questionen}}</b>
                  <table><tr><td></td><td></td><td></td></tr>
                 {% else %}
-
-                {% if question.id not in ascendancesF and question.id not in ascendancesM %}
-                    <tr class="{% cycle 'Q1' 'Q2' %}">
-                     {% include "aide_snippet.html" with aide=question.aideen %}
-                     {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province ordre=x %}
-                    </tr>
-                {% elif question.id in ascendancesF and question.id in ascendancesM %}
-                     {% for enfant in question.questionntp2_set.all %}
-                        {% if forloop.counter == 1 %}
-                        <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
-                            {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
-                            {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province relation=enfant.relation cible=enfant.cible classe="fillemere" ordre=x %}
+                    {% if question.id not in ascendancesF and question.id not in ascendancesM %}
+                        <tr class="{% cycle 'Q1' 'Q2' %}">
+                         {% include "aide_snippet.html" with aide=question.aideen %}
+                         {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province ordre=x %}
                         </tr>
-                        {% endif %}
-                     {% endfor %}
-                {% elif question.id in ascendancesM and question.id not in ascendancesF %}
-                        <tr class="mere">
-                    {% for enfant in question.questionntp2_set.all %}
-                        {% if forloop.counter == 1 %}
-                            {% include "aide_snippet.html" with aide=enfant.aideen %}
-                            {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" ordre=x %}
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-                {% for enfant in question.questionntp2_set.all %}
-                    {% if enfant.id not in ascendancesM %}
-                         <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
-                             {% include "aide_snippet.html" with aide=question.aideen classe="fille" %}
-                             {% include "champsrepetntp2_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" ordre=x %}
-                         </tr>
+                    {% elif question.id in ascendancesF and question.id in ascendancesM %}
+                         {% for enfant in question.questionntp2_set.all %}
+                            {% if forloop.counter == 1 %}
+                            <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
+                                {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
+                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province relation=enfant.relation cible=enfant.cible classe="fillemere" ordre=x %}
+                            </tr>
+                            {% endif %}
+                         {% endfor %}
+                    {% elif question.id in ascendancesM and question.id not in ascendancesF %}
+                            <tr class="mere">
+                        {% for enfant in question.questionntp2_set.all %}
+                            {% if forloop.counter == 1 %}
+                                {% include "aide_snippet.html" with aide=enfant.aideen %}
+                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" ordre=x %}
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
+                    {% for enfant in question.questionntp2_set.all %}
+                        {% if enfant.id not in ascendancesM %}
+                             <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
+                                 {% include "aide_snippet.html" with aide=question.aideen classe="fille" %}
+                                 {% include "champsrepetntp2_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" ordre=x %}
+                             </tr>
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
              {% endfor %}
@@ -70,7 +69,7 @@
              <button type="submit" class="btn-default" name="current_{{ x }}" >Save current card # {{ x }}</button>
              <button type="submit" class="btn-default" name="add_{{ x }}" >Save current card and add one</button>
           </div>
-          {% endfor %}
+         {% endfor %}
 
    </div><!--Fermeture de la boite à onglets--> '
 
