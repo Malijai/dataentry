@@ -1,12 +1,12 @@
 {% load formulairesrepet %}
 {% with type=typequest|stringformat:"s" %}
 
-{% if type == "STRING" or type == "NUMBER" %}
+{% if type == "STRING" or type == "CODESTRING" or type == "NUMBER" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
         <td class=" {{ classe }} ">{% fait_textechar questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=repetition ordre=ordre %}</td>
     {% endautoescape %}
-{% elif type == "DATE" %}
+{% elif type == "DATE" or type == "CODEDATE" %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }}</td>
         <td class=" {{ classe }} ">{% fait_date questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>

@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import SelectPersonne, saverepetntp2, saventp2
+from .views import SelectPersonne, saverepetntp2, saventp2, some_pdf
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^saventp2/(?P<qid>[-\w]+)/(?P<pid>[-\w]+)/(?P<province>[-\w]+)/(?P<Vid>[-\w]+)/(?P<Aid>[-\w]+)/$', saventp2, name='saventp2'),
     url(r'^login/', auth_views.login, name='login',
         kwargs={'redirect_authenticated_user': True}),
+    url(r'^pdf/(?P<pk>[-\w]+)/$', some_pdf, name='do_some_pdf'),
 ]

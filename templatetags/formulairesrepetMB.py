@@ -188,7 +188,7 @@ def fait_textechar(qid,type, *args, **kwargs):
     defaultvalue = fait_default(personneid, qid, assistant=assistant, ordre=ordre)
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid) + "Z_Z" + str(ordre)
-    if type == 'STRING':
+    if type == 'STRING' or type == 'CODESTRING':
         question = forms.TextInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
     else:
         question = forms.NumberInput(attrs={'size': 10, 'id': IDCondition,'name': name,})

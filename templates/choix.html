@@ -98,9 +98,20 @@
             </table>
                 <button type="submit" name="Choisir4">Choose</button>
         </form>
-       </div>
 
-   </div>
+       </div>
+       <div class="tabbertab">
+<h3>To export questionnaires in PDF</h3>
+        <ul>
+             <li>Socio demo<a href="{% url 'do_some_pdf' 4 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict details<a href="{% url 'do_some_pdf' 10 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict Expert assessment<a href="{% url 'do_some_pdf' 11 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Last Hearing details<a href="{% url 'do_some_pdf' 20 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Last Hearing Expert assessment<a href="{% url 'do_some_pdf' 21 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Hospitalization used for selection<a href="{% url 'do_some_pdf' 1000 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Other hospitalizations<a href="{% url 'do_some_pdf' 2000 %}" class= 'button'><b> >> Do pdf</b></a></li>
+        </ul>
+   </div></div>
 </body>
 </html>
 

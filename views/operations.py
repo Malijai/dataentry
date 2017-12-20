@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import  render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from .models import Questionnaire, Personne, Province, Verdict, Audience, Resultatrepetntp2, Questionntp2, Resultatntp2
+from django.shortcuts import  render, redirect
+from dataentry.models import Questionnaire, Personne, Province, Verdict, Audience, Resultatrepetntp2, Questionntp2, Resultatntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-from django.apps import apps
 import datetime
-import logging
+#import logging
+from dataentry.encrypter import Encrypter
 
 
 @login_required(login_url=settings.LOGIN_URI)
@@ -86,7 +85,7 @@ def saventp2(request, qid, pid, province, Vid, Aid):
     if request.method == 'POST':
         for question in questionstoutes:
             assistant = request.user
-            if question.typequestion_id == 5:
+            if question.typequestion.nom == 'DATE' or question.typequestion.nom == 'CODEDATE':
                 an = request.POST.get('q' + str(question.id) + '_year')
                 if an != "":
                     mois = request.POST.get('q' + str(question.id) + '_month')
@@ -97,6 +96,10 @@ def saventp2(request, qid, pid, province, Vid, Aid):
             else:
                 reponseaquestion = request.POST.get('q' + str(question.id))
             if reponseaquestion:
+                if question.typequestion.nom == 'CODEDATE' or question.typequestion.nom == 'CODESTRING':
+                    #reponseaquestion = encode_donnee(reponseaquestion)
+                    reponseaquestion = 'Encoded'
+
                 Resultatntp2.objects.update_or_create(
                              personne_id=pid, question_id=question.id, verdict_id=Vid, audience_id=Aid, assistant=assistant,
                             # update these fields, or create a new object with these values
@@ -260,4 +263,12 @@ def genere_questions(qid):
             ascendancesF.add(fille.id)
     return ascendancesF, ascendancesM, questionstoutes
 
+
+def encode_donnee(message):
+    PK_path = settings.PUBLIC_KEY_PATH
+    PK_name = settings.PUBLIC_KEY
+    e = Encrypter()
+    #public_key = e.read_key(PK_path + 'Manitoba_public.pem')
+    public_key = e.read_key(PK_path + PK_name)
+    return e.encrypt(message,public_key)
 

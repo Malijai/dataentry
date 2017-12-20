@@ -80,7 +80,7 @@ def fait_textechar(qid,type, *args, **kwargs):
 
     name = "q" + str(qid)
 
-    if type == 'STRING':
+    if type == 'STRING' or type == 'CODESTRING':
         question = forms.TextInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
     else:
         question = forms.NumberInput(attrs={'size': 10, 'id': IDCondition,'name': name,})

@@ -298,7 +298,7 @@ class Resultatntp2(models.Model):
     assistant = models.ForeignKey(User)
     verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD)
     audience = models.ForeignKey(Audience, default=DEFAULT_VERD)
-    reponsetexte = models.CharField(max_length=200, blank=True, null=True)
+    reponsetexte = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -313,7 +313,7 @@ class Resultatrepetntp2(models.Model):
     questionnaire =  models.ForeignKey(Questionnaire,db_index=True)
     fiche = models.IntegerField(db_index=True)
     question = models.ForeignKey(Questionntp2, db_index=True)
-    reponsetexte = models.CharField(max_length=200, blank=True, null=True)
+    reponsetexte = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
