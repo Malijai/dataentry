@@ -31,9 +31,9 @@ DEFAULT_PARENT_ID = 0
 class Question(models.Model):
     questionno = models.IntegerField()
     questionen = models.CharField(max_length=255,)
-    questionnaire = models.ForeignKey(Questionnaire)
-    typequestion = models.ForeignKey(Typequestion)
-    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
+    typequestion = models.ForeignKey(Typequestion, on_delete=models.DO_NOTHING)
+    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID, on_delete=models.DO_NOTHING)
     relation = models.CharField(blank=True, null=True, max_length=45,)
     cible = models.CharField(blank=True, null=True, max_length=45,)
     varname = models.CharField(blank=True, null=True, max_length=45,)
@@ -77,7 +77,7 @@ class Pays(models.Model):
 
 class Personne(models.Model):
     code = models.CharField(max_length=200,)
-    province = models.ForeignKey(Province)
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING)
     ddn = models.CharField(max_length=200,blank=True, null=True)
     diedon = models.CharField(max_length=200,blank=True, null=True)
     dod = models.CharField(max_length=200,blank=True, null=True)
@@ -85,16 +85,16 @@ class Personne(models.Model):
     sexe = models.CharField(max_length=200,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    assistant = models.ForeignKey(User)
+    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
 
 class Reponse(models.Model):
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
     reponse_no = models.CharField(max_length=200)
     reponse_valeur = models.CharField(max_length=200)
     reponse_en = models.CharField(max_length=200,)
     reponse_fr = models.CharField(max_length=200,)
-    questionnaire = models.ForeignKey(Questionnaire)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
 
     class Meta:
        ordering = ['reponse_valeur']
@@ -180,7 +180,7 @@ class Etablissement(models.Model):
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
-    province = models.ForeignKey(Province,default=DEFAULT_PID)
+    province = models.ForeignKey(Province,default=DEFAULT_PID, on_delete=models.DO_NOTHING)
 
     class Meta:
         ordering = ['reponse_valeur']
@@ -195,7 +195,7 @@ class Municipalite(models.Model):
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
-    province = models.ForeignKey(Province,default=DEFAULT_PID)
+    province = models.ForeignKey(Province,default=DEFAULT_PID, on_delete=models.DO_NOTHING)
 
     class Meta:
         ordering = ['reponse_valeur']
@@ -237,11 +237,11 @@ class Audience(models.Model):
 
 DEFAULT_VERD = 100
 class Resultat(models.Model):
-    personne = models.ForeignKey(Personne)
-    question = models.ForeignKey(Question)
-    assistant = models.ForeignKey(User)
-    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD)
-    audience = models.ForeignKey(Audience, default=DEFAULT_VERD)
+    personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
+    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
+    audience = models.ForeignKey(Audience, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
     reponsetexte = models.CharField(max_length=200, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -254,9 +254,9 @@ DEFAULT_PARENT_ID = 0
 class Questionntp2(models.Model):
     questionno = models.IntegerField()
     questionen = models.CharField(max_length=255,)
-    questionnaire = models.ForeignKey(Questionnaire)
-    typequestion = models.ForeignKey(Typequestion)
-    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
+    typequestion = models.ForeignKey(Typequestion, on_delete=models.DO_NOTHING)
+    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID, on_delete=models.DO_NOTHING)
     relation = models.CharField(blank=True, null=True, max_length=45,)
     cible = models.CharField(blank=True, null=True, max_length=45,)
     varname = models.CharField(blank=True, null=True, max_length=45,)
@@ -274,12 +274,12 @@ class Questionntp2(models.Model):
         return u'%s' % self.questionen
 
 class Reponsentp2(models.Model):
-    question = models.ForeignKey(Questionntp2)
+    question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
     reponse_no = models.CharField(max_length=200)
     reponse_valeur = models.CharField(max_length=200)
     reponse_en = models.CharField(max_length=200,)
     reponse_fr = models.CharField(max_length=200,)
-    questionnaire = models.ForeignKey(Questionnaire)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
 
     class Meta:
        ordering = ['reponse_valeur']
@@ -293,11 +293,11 @@ class Reponsentp2(models.Model):
 
 DEFAULT_VERD = 100
 class Resultatntp2(models.Model):
-    personne = models.ForeignKey(Personne)
-    question = models.ForeignKey(Questionntp2)
-    assistant = models.ForeignKey(User)
-    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD)
-    audience = models.ForeignKey(Audience, default=DEFAULT_VERD)
+    personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
+    question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
+    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
+    audience = models.ForeignKey(Audience, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
     reponsetexte = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -308,11 +308,11 @@ class Resultatntp2(models.Model):
 
 DEFAULT_DATE = '0000-00-00'
 class Resultatrepetntp2(models.Model):
-    personne = models.ForeignKey(Personne)
-    assistant = models.ForeignKey(User)
-    questionnaire =  models.ForeignKey(Questionnaire,db_index=True)
+    personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
+    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    questionnaire =  models.ForeignKey(Questionnaire,db_index=True, on_delete=models.DO_NOTHING)
     fiche = models.IntegerField(db_index=True)
-    question = models.ForeignKey(Questionntp2, db_index=True)
+    question = models.ForeignKey(Questionntp2, db_index=True, on_delete=models.DO_NOTHING)
     reponsetexte = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

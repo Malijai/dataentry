@@ -35,8 +35,12 @@ td.R1 {
 
 }
 
+td.fifille {
+ background: #D1D1D9;
+}
+
 td.fille {
- background: #D3E3F6;
+ background: #E2E2EA;
 }
 
 tr.mere {
@@ -47,6 +51,8 @@ background: #BAC9DA;
 
 td.fillemere {
  background: #B0CEF0;
+ border-bottom:  black solid 2px;
+
 }
 
 td.plus {

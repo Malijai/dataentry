@@ -131,6 +131,13 @@ def some_pdf(request,pk):
                 bogustext = '&#x00B7;' + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
+        elif question.typequestion.nom == "BOOLEAN":
+            liste = [(1, 'Yes mentioned'), (3, 'maybe but not explicit'), (100, 'No not mentioned'), (98, 'NA'), (99, 'Unknown')]
+            for list in liste:
+                espace = '&nbsp;'*25
+                bogustext = '&#x00B7;' + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
+                p = Paragraph(bogustext, bullettes)
+                Story.append(p)
         elif question.typequestion.nom == "COUR":
             liste = [(1, 'Municipal'), (2, 'Provincial'), (3, 'Superior'),]
             for list in liste:
@@ -142,7 +149,7 @@ def some_pdf(request,pk):
             liste = Reponsentp2.objects.filter(question_id=question.id )
             for list in liste:
                 espace = '&nbsp;'*25
-                bogustext = '&#x00B7;' + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + unicode(list.reponse_en)
+                bogustext = '&#x00B7;' + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + str(list.reponse_en)
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "HCR20" or question.typequestion.nom == "POSOLOGIE" or question.typequestion.nom == "VICTIME":

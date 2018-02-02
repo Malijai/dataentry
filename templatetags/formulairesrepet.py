@@ -185,12 +185,14 @@ def fait_date(qid,b, *args, **kwargs):
     IDCondition = fait_id(qid, cible, relation=relation)
     name = "q" + str(qid) + "Z_Z" + str(ordre)
 
-    years = {x:x for x in  [''] + range(1910,2019)}
-    days = {x:x for x in  [''] + range(1,32)}
+    years = {x : x for x in range(1910,2019)}
+    years[''] = ''
+    days = {x : x for x in range(1,32)}
+    days[''] = ''
     months=(('',''),(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),(9,'Sept'),(10,'Oct'),(11,'Nov'),(12,'Dec'))
-    year = forms.Select(choices = years.iteritems(), attrs={'id': IDCondition, 'name': name + '_year', })
+    year = forms.Select(choices = years.items(), attrs={'id': IDCondition, 'name': name + '_year', })
     month = forms.Select(choices = months, attrs={ 'name': name + '_month' })
-    day = forms.Select(choices = days.iteritems(), attrs={'name': name + '_day' })
+    day = forms.Select(choices = days.items(), attrs={'name': name + '_day' })
 # #name=q69_year, id=row...
     return year.render(name + '_year' , an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
 

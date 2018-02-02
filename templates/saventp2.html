@@ -40,17 +40,22 @@
                 <tr class="mere">
                     {% for enfant in question.questionntp2_set.all %}
                         {% if forloop.counter == 1 %}
-                            {% include "aide_snippet.html" with aide=enfant.aideen %}
+                            {% include "aide_snippet.html" with aide=question.aideen %}
                             {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" %}
                 </tr>
                         {% endif %}
                      {% endfor %}
-                     {% endif %}
+            {% endif %}
             {% for enfant in question.questionntp2_set.all %}
                 {% if enfant.id not in ascendancesM %}
                      <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
-                         {% include "aide_snippet.html" with aide=question.aideen classe="fille" %}
+                     {% if enfant.id|divisibleby:2 %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fifille" %}
+                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fifille" %}
+                    {% else %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
                          {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" %}
+                    {% endif %}
                      </tr>
                  {% endif %}
             {% endfor %}
