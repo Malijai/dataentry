@@ -21,18 +21,20 @@
             {% endif %}
                  <div class="tabbertab"><h3>{{ question.questionen|slice:"0:15" }}</h3><b>{{ question.questionen}}</b>
                  <table><tr><td></td><td></td><td></td></tr>
+        {% elif question.typequestion.nom == 'COMMENT' %}
+            <tr><td class="plusdeux" colspan="3">{{ question.questionen }}<td></tr>
         {% else %}
             {% if question.id not in ascendancesF and question.id not in ascendancesM %}
                 <tr class="{% cycle 'Q1' 'Q2' %}">
-                 {% include "aide_snippet.html" with aide=question.aideen %}
-                 {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province %}
+                    {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province %}
+                    {% include "aide_snippet.html" with aide=question.aideen %}
                 </tr>
             {% elif question.id in ascendancesF and question.id in ascendancesM %}
                      {% for enfant in question.questionntp2_set.all %}
                         {% if forloop.counter == 1 %}
                             <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
-                                {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
                                 {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province relation=enfant.relation cible=enfant.cible classe="fillemere" %}
+                                {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
                             </tr>
                         {% endif %}
                      {% endfor %}
@@ -40,8 +42,8 @@
                 <tr class="mere">
                     {% for enfant in question.questionntp2_set.all %}
                         {% if forloop.counter == 1 %}
-                            {% include "aide_snippet.html" with aide=question.aideen %}
                             {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" %}
+                            {% include "aide_snippet.html" with aide=question.aideen %}
                 </tr>
                         {% endif %}
                      {% endfor %}
@@ -50,11 +52,11 @@
                 {% if enfant.id not in ascendancesM %}
                      <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
                      {% if enfant.id|divisibleby:2 %}
-                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fifille" %}
                          {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fifille" %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fifille" %}
                     {% else %}
-                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
                          {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
                     {% endif %}
                      </tr>
                  {% endif %}
@@ -63,5 +65,5 @@
     {% endfor %}
 </table>
 
-</div><!--Fermeture de la boite à onglets--> '
+</div><!--Fermeture de la boite à onglets-->
 {% endblock content %}

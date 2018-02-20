@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Resultat, Reponsentp2, Questionntp2, Resultatntp2
+from dataentry.models import Reponsentp2, Resultatntp2
 from django import forms
 
 register = template.Library()
@@ -36,6 +36,27 @@ def fait_dichou(a,b, *args, **kwargs):
 
 
 @register.simple_tag
+def fait_court(a, b, *args, **kwargs):
+    qid = a
+    type = b
+    personneid = kwargs['persid']
+    relation = kwargs['relation']
+    cible = kwargs['cible']
+    vid = kwargs['Vid']
+    aid = kwargs['Aid']
+    assistant = kwargs['uid']
+
+    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    IDCondition = fait_id(qid, cible, relation=relation)
+    name = "q" + str(qid)
+
+    liste = [(1, 'Municipal'), (2, 'Provincial'), (3, 'Superior')]
+    question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
+
+    return enlevelisttag(question.render(name, defaultvalue))
+
+
+@register.simple_tag
 def fait_date(qid,b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
@@ -47,9 +68,8 @@ def fait_date(qid,b, *args, **kwargs):
     mois = ''
     jour = ''
     defff = ''
-    existe = Resultat.objects.filter(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid).count()
-    if existe > 0:
-        ancienne = Resultat.objects.get(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid)
+    if Resultatntp2.objects.filter(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid).exists():
+        ancienne = Resultatntp2.objects.get(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid)
         defff = ancienne.reponsetexte
         an, mois, jour = defff.split('-')
 
@@ -139,18 +159,15 @@ def fait_reponse(qid,b, *args, **kwargs):
     IDCondition = fait_id(qid,cible,relation=relation)
 
     listevaleurs = Reponsentp2.objects.filter(question_id=qid, )
-    nombrelistevaleurs = Reponsentp2.objects.filter(question_id=qid).count()
     name = "q" + str(qid)
     liste = []
     for valeur in listevaleurs:
         vid = valeur.reponse_valeur
         nen = valeur.reponse_en
         liste.append((vid, nen))
-    if nombrelistevaleurs < 5:
-        question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
-    else:
-        liste.append(('',''))
-        question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
+
+    liste.append(('',''))
+    question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
 #   return question.render(name, defaultvalue)
     return enlevelisttag(question.render(name, defaultvalue))
@@ -234,8 +251,7 @@ def fait_default(personneid, qid, vid, aid, *args, **kwargs):
     ##fail la valeur par deffaut
     assistant = kwargs['assistant']
     defff = ''
-    existe = Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).count()
-    if existe > 0:
+    if Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).exists():
         ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
         defff = ancienne.reponsetexte
 

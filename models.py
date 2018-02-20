@@ -4,53 +4,9 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Typequestion(models.Model):
-    nom = models.CharField(max_length=200, )
-    table = models.CharField(max_length=200, blank=True, null=True)
-    taille = models.CharField(max_length=200, )
 
-    def __str__(self):
-        return '%s' % self.nom
-
-    def __unicode__(self):
-        return u'%s' % self.nom
-
-
-class Questionnaire(models.Model):
-    nom_en = models.CharField(max_length=200,)
-    nom_fr = models.CharField(max_length=200,)
-    description = models.CharField(max_length=200,)
-
-    def __str__(self):
-        return '%s' % self.nom_en
-
-    def __unicode__(self):
-        return u'%s' % self.nom_en
-
-DEFAULT_PARENT_ID = 0
-class Question(models.Model):
-    questionno = models.IntegerField()
-    questionen = models.CharField(max_length=255,)
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
-    typequestion = models.ForeignKey(Typequestion, on_delete=models.DO_NOTHING)
-    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID, on_delete=models.DO_NOTHING)
-    relation = models.CharField(blank=True, null=True, max_length=45,)
-    cible = models.CharField(blank=True, null=True, max_length=45,)
-    varname = models.CharField(blank=True, null=True, max_length=45,)
-    aidefr = models.TextField(blank=True, null=True)
-    aideen = models.TextField(blank=True, null=True)
-    qstyle = models.CharField(blank=True, null=True, max_length=45,)
-
-    class Meta:
-        ordering = ['questionno']
-
-    def __str__(self):
-        return '%s' % self.questionen
-
-    def __unicode__(self):
-        return u'%s' % self.questionen
-
-
+#######################
+## listes de valeurs typequestion_id=13 (PROVINCE)
 class Province(models.Model):
     nom_en = models.CharField(max_length=200,)
     nom_fr = models.CharField(max_length=200,)
@@ -62,6 +18,7 @@ class Province(models.Model):
         return u'%s' % self.nom_en
 
 
+## listes de valeurs typequestion_id=20 (PAYS)
 class Pays(models.Model):
     nom_en = models.CharField(max_length=200,)
     nom_fr = models.CharField(max_length=200,)
@@ -74,6 +31,7 @@ class Pays(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
 
 class Personne(models.Model):
     code = models.CharField(max_length=200,)
@@ -88,25 +46,8 @@ class Personne(models.Model):
     assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
 
-class Reponse(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
-    reponse_no = models.CharField(max_length=200)
-    reponse_valeur = models.CharField(max_length=200)
-    reponse_en = models.CharField(max_length=200,)
-    reponse_fr = models.CharField(max_length=200,)
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
-
-    class Meta:
-       ordering = ['reponse_valeur']
-
-    def __str__(self):
-        return '%s' % self.nom_en
-
-    def __unicode__(self):
-        return u'%s' % self.nom_en
-
-
 class Langue(models.Model):
+    ## listes de valeurs typequestion_id=19 (LANGUE)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
 
@@ -121,6 +62,7 @@ class Langue(models.Model):
 
 
 class Violation(models.Model):
+    ## listes de valeurs typequestion_id=45 (VIOLATION)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
 
@@ -132,8 +74,10 @@ class Violation(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
 
 class Hcr(models.Model):
+    ## listes de valeurs typequestion_id=11 (HCR20)
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
@@ -147,7 +91,9 @@ class Hcr(models.Model):
     def __unicode__(self):
         return u'%s' % self.nom_en
 
+
 class Victime(models.Model):
+    ## listes de valeurs typequestion_id=14 (VICTIME)
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
@@ -161,7 +107,9 @@ class Victime(models.Model):
     def __unicode__(self):
         return u'%s' % self.nom_en
 
+
 class Posologie(models.Model):
+    ## listes de valeurs typequestion_id=10 (POSOLOGIE)
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
@@ -174,9 +122,11 @@ class Posologie(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
 
 DEFAULT_PID = 1
 class Etablissement(models.Model):
+    ## listes de valeurs typequestion_id=9 (ETABLISSEMENT)
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
@@ -190,8 +140,10 @@ class Etablissement(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
 
 class Municipalite(models.Model):
+    ## listes de valeurs typequestion_id=15 (MUNICIPALITE)
     reponse_valeur = models.CharField(max_length=200)
     nom_en = models.CharField(max_length=200, )
     nom_fr = models.CharField(max_length=200, )
@@ -205,6 +157,79 @@ class Municipalite(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.nom_en
+
+
+class Typequestion(models.Model):
+    nom = models.CharField(max_length=200, )
+    table = models.CharField(max_length=200, blank=True, null=True)
+    taille = models.CharField(max_length=200, )
+
+    def __str__(self):
+        return '%s' % self.nom
+
+    def __unicode__(self):
+        return u'%s' % self.nom
+
+
+class Questionnaire(models.Model):
+    nom_en = models.CharField(max_length=200, )
+    nom_fr = models.CharField(max_length=200, )
+    description = models.CharField(max_length=200, )
+
+    def __str__(self):
+        return '%s' % self.nom_en
+
+    def __unicode__(self):
+        return u'%s' % self.nom_en
+
+
+#######################
+## questions utilisees pour tous les questionnaires
+
+DEFAULT_PARENT_ID = 0
+class Questionntp2(models.Model):
+    questionno = models.IntegerField()
+    questionen = models.CharField(max_length=255,)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
+    typequestion = models.ForeignKey(Typequestion, on_delete=models.DO_NOTHING)
+    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID, on_delete=models.DO_NOTHING)
+    relation = models.CharField(blank=True, null=True, max_length=45,)
+    cible = models.CharField(blank=True, null=True, max_length=45,)
+    varname = models.CharField(blank=True, null=True, max_length=45,)
+    aidefr = models.TextField(blank=True, null=True)
+    aideen = models.TextField(blank=True, null=True)
+    qstyle = models.CharField(blank=True, null=True, max_length=45,)
+    parentvarname = models.CharField(blank=True, null=True, max_length=45,)
+
+    class Meta:
+        ordering = ['questionno']
+
+    def __str__(self):
+        return '%s' % self.questionen
+
+    def __unicode__(self):
+        return u'%s' % self.questionen
+
+#######################
+## listes de valeurs des questions de typequestion_id=4 (CATEGORIAL)
+class Reponsentp2(models.Model):
+    question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
+    reponse_no = models.CharField(max_length=200)
+    reponse_valeur = models.CharField(max_length=200)
+    reponse_en = models.CharField(max_length=200,)
+    reponse_fr = models.CharField(max_length=200,)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
+    varname = models.CharField(blank=True, null=True, max_length=45,)
+
+    class Meta:
+       ordering = ['reponse_valeur']
+
+    def __str__(self):
+        return '%s' % self.nom_en
+
+    def __unicode__(self):
+        return u'%s' % self.nom_en
+
 
 class Verdict(models.Model):
     reponse_valeur = models.CharField(max_length=200)
@@ -235,62 +260,8 @@ class Audience(models.Model):
         return u'%s' % self.nom_en
 
 
-DEFAULT_VERD = 100
-class Resultat(models.Model):
-    personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
-    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
-    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
-    audience = models.ForeignKey(Audience, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
-    reponsetexte = models.CharField(max_length=200, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = (('personne', 'question','verdict','audience','assistant'),)
-
-
-DEFAULT_PARENT_ID = 0
-class Questionntp2(models.Model):
-    questionno = models.IntegerField()
-    questionen = models.CharField(max_length=255,)
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
-    typequestion = models.ForeignKey(Typequestion, on_delete=models.DO_NOTHING)
-    parent= models.ForeignKey("self", default=DEFAULT_PARENT_ID, on_delete=models.DO_NOTHING)
-    relation = models.CharField(blank=True, null=True, max_length=45,)
-    cible = models.CharField(blank=True, null=True, max_length=45,)
-    varname = models.CharField(blank=True, null=True, max_length=45,)
-    aidefr = models.TextField(blank=True, null=True)
-    aideen = models.TextField(blank=True, null=True)
-    qstyle = models.CharField(blank=True, null=True, max_length=45,)
-
-    class Meta:
-        ordering = ['questionno']
-
-    def __str__(self):
-        return '%s' % self.questionen
-
-    def __unicode__(self):
-        return u'%s' % self.questionen
-
-class Reponsentp2(models.Model):
-    question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
-    reponse_no = models.CharField(max_length=200)
-    reponse_valeur = models.CharField(max_length=200)
-    reponse_en = models.CharField(max_length=200,)
-    reponse_fr = models.CharField(max_length=200,)
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.DO_NOTHING)
-
-    class Meta:
-       ordering = ['reponse_valeur']
-
-    def __str__(self):
-        return '%s' % self.nom_en
-
-    def __unicode__(self):
-        return u'%s' % self.nom_en
-
-
+#######################
+## Enregistrement des reponses des donnees NON repetitives
 DEFAULT_VERD = 100
 class Resultatntp2(models.Model):
     personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
@@ -306,6 +277,8 @@ class Resultatntp2(models.Model):
         unique_together = (('personne', 'question','verdict','audience','assistant'),)
 
 
+#######################
+## Enregistrement des reponses des donnees REPETITIVES
 DEFAULT_DATE = '0000-00-00'
 class Resultatrepetntp2(models.Model):
     personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
@@ -322,3 +295,8 @@ class Resultatrepetntp2(models.Model):
         unique_together = (('personne', 'assistant', 'questionnaire', 'question', 'fiche',))
 
         ordering = ['personne', 'assistant', 'questionnaire', 'fiche']
+
+############################################
+
+
+

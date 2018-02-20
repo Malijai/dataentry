@@ -30,7 +30,11 @@
 {% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
     {% autoescape off %}
          <td class=" {{ classe }} ">{{ textequest }}</td>
-         <td class=" {{ classe }} ">{% fait_table_valeurs_prov questid type persid=persid parent=parent relation=relation cible=cible province=province uid=user.id ordre=ordre %}</td>{% endautoescape %}
+         <td class=" {{ classe }} ">{% fait_table_valeurs_prov questid type persid=persid parent=parent relation=relation cible=cible province=user.profile.province uid=user.id ordre=ordre %}</td>{% endautoescape %}
+{% elif type == "COUR" %}
+    {% autoescape off %}
+        <td class=" {{ classe }} ">{{ textequest }}</td>
+        <td class=" {{ classe }} ">{% fait_court questid type persid=persid parent=parent relation=relation cible=cible uid=user.id ordre=ordre %}</td>{% endautoescape %}
 {% else %}
     {% autoescape off %}
         <td class=" {{ classe }} ">{{ textequest }} -- {{ type }}</td>
