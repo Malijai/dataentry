@@ -233,7 +233,6 @@ class Reponsentp2(models.Model):
 
 #######################
 ## Enregistrement des reponses des donnees NON repetitives
-DEFAULT_VERD = 100
 class Resultatntp2(models.Model):
     personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
@@ -248,6 +247,7 @@ class Resultatntp2(models.Model):
 
 #######################
 ## Enregistrement des reponses des donnees REPETITIVES
+## Garder le questionnaire_id pour pouvoir effacer une fiche au complet
 DEFAULT_DATE = '0000-00-00'
 class Resultatrepetntp2(models.Model):
     personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
