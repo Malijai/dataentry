@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import  render, redirect
-from dataentry.models import Questionnaire, Personne, Province
+from dataentry.models import Questionnaire, Personne
 from dataentry.models import Resultatrepetntp2, Questionntp2, Resultatntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
