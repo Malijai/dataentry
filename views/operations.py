@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import  render, redirect
-from dataentry.models import Questionnaire, Personne, Province, Verdict, Audience
+from dataentry.models import Questionnaire, Personne, Province
 from dataentry.models import Resultatrepetntp2, Questionntp2, Resultatntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -27,9 +27,6 @@ def SelectPersonne(request):
                                 {
                                     'personnes': Personne.objects.objects.all(),
                                     'questionnaires': Questionnaire.objects.all(),
-                                    #'provinces': Province.objects.all(),
-                                    'verdicts': Verdict.objects.all(),
-                                    'audiences': Audience.objects.all(),
                                 }
                             )
                 else:
@@ -39,9 +36,6 @@ def SelectPersonne(request):
                                 {
                                     'personnes': Personne.objects.filter(province__id=province),
                                     'questionnaires': Questionnaire.objects.all(),
-                                    #'provinces': Province.objects.all(),
-                                    'verdicts': Verdict.objects.all(),
-                                    'audiences': Audience.objects.all(),
                                 }
                             )
             else:
@@ -49,9 +43,6 @@ def SelectPersonne(request):
                                 saventp2,
                                 request.POST.get('questionnaireid'),
                                 request.POST.get('personneid'),
-                                #request.POST.get('provinceid'),
-                                request.POST.get('verdictid1'),
-                                request.POST.get('audienceid1')
                             )
 
         elif 'Choisir4' in request.POST:
@@ -65,9 +56,6 @@ def SelectPersonne(request):
                                 {
                                     'personnes': Personne.objects.objects.all(),
                                     'questionnaires': Questionnaire.objects.all(),
-                                    #'provinces': Province.objects.all(),
-                                    'verdicts': Verdict.objects.all(),
-                                    'audiences': Audience.objects.all(),
                                 }
                             )
                 else:
@@ -77,9 +65,6 @@ def SelectPersonne(request):
                                 {
                                     'personnes': Personne.objects.filter(province__id=province),
                                     'questionnaires': Questionnaire.objects.all(),
-                                    #'provinces': Province.objects.all(),
-                                    'verdicts': Verdict.objects.all(),
-                                    'audiences': Audience.objects.all()
                                 }
                             )
             else:
@@ -97,9 +82,6 @@ def SelectPersonne(request):
                 {
                     'personnes': Personne.objects.objects.all(),
                     'questionnaires': Questionnaire.objects.all(),
-                    # 'provinces': Province.objects.all(),
-                    'verdicts': Verdict.objects.all(),
-                    'audiences': Audience.objects.all(),
                 }
             )
         else:
@@ -110,23 +92,22 @@ def SelectPersonne(request):
                             #'personnes': Personne.objects.all(),
                             'personnes': Personne.objects.filter(province__id=province),
                             'questionnaires': Questionnaire.objects.all(),
-                           # 'provinces': Province.objects.all(),
-                            'verdicts': Verdict.objects.all(),
-                            'audiences': Audience.objects.all(),
                             'message':'welcome'
                         }
                     )
 
 
 @login_required(login_url=settings.LOGIN_URI)
-def saventp2(request, qid, pid, Vid, Aid):#(request, qid, pid, province, Vid, Aid):
+def saventp2(request, qid, pid):#(request, qid, pid, province):
     #genere le questionnaire demande NON repetitif
     ascendancesF, ascendancesM, questionstoutes = genere_questions(qid)
+    nomcode = Personne.objects.get(id=pid).code
+    questionnaire = Questionnaire.objects.get(id=qid).nom_en
 
     if request.method == 'POST':
         for question in questionstoutes:
             assistant = request.user
-            if question.typequestion.nom == 'DATE' or question.typequestion.nom == 'CODEDATE':
+            if question.typequestion.nom == 'DATE' or question.typequestion.nom == 'CODEDATE' or question.typequestion.nom == 'DATEH':
                 an = request.POST.get('q' + str(question.id) + '_year')
                 if an != "":
                     mois = request.POST.get('q' + str(question.id) + '_month')
@@ -142,7 +123,7 @@ def saventp2(request, qid, pid, Vid, Aid):#(request, qid, pid, province, Vid, Ai
                     reponseaquestion = 'Encoded'
 
                 Resultatntp2.objects.update_or_create(
-                             personne_id=pid, question_id=question.id, verdict_id=Vid, audience_id=Aid, assistant=assistant,
+                             personne_id=pid, question_id=question.id, assistant=assistant,
                             # update these fields, or create a new object with these values
                             defaults={
                                 'reponsetexte': reponseaquestion,
@@ -154,12 +135,11 @@ def saventp2(request, qid, pid, Vid, Aid):#(request, qid, pid, province, Vid, Ai
                       {
                           'qid': qid,
                           'pid': pid,
-                         # 'province': province,
-                          'Vid': Vid,
-                          'Aid': Aid,
                           'questions': questionstoutes,
                           'ascendancesM': ascendancesM,
-                          'ascendancesF': ascendancesF
+                          'ascendancesF': ascendancesF,
+                          'code' : nomcode,
+                          'questionnaire' : questionnaire
                       }
                       )
     else:
@@ -167,12 +147,11 @@ def saventp2(request, qid, pid, Vid, Aid):#(request, qid, pid, province, Vid, Ai
                   {
                       'qid': qid,
                       'pid': pid,
-                    #  'province': province,
-                      'Vid': Vid,
-                      'Aid': Aid,
                       'questions': questionstoutes,
                       'ascendancesM': ascendancesM,
-                      'ascendancesF': ascendancesF
+                      'ascendancesF': ascendancesF,
+                      'code': nomcode,
+                      'questionnaire': questionnaire
                   }
                   )
 
@@ -180,6 +159,7 @@ def saventp2(request, qid, pid, Vid, Aid):#(request, qid, pid, province, Vid, Ai
 @login_required(login_url=settings.LOGIN_URI)
 def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
     ascendancesF, ascendancesM, questionstoutes = genere_questions(qid)
+    nomcode = Personne.objects.get(id=pid).code
 
     if request.method == 'POST':
  #       assistant = request.user
@@ -204,14 +184,14 @@ def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
                                 personne_id=pid,
                                 assistant_id=request.user.id,
                                 questionnaire_id=qid,
-                                question_id=10000,
+                                question_id=1,
                                 fiche=ordre,
                                 reponsetexte= 10000
                             )
                     messages.add_message(request, messages.WARNING, '1 File added ')
 
                 for question in questionstoutes:
-                    if question.typequestion_id == 5:
+                    if question.typequestion_id == 5 or question.typequestion_id == 60:
                         an = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_year')
                         if an != "":
                             mois = request.POST.get('q' + str(question.id) + 'Z_Z' + str(x) + '_month' )
@@ -241,12 +221,12 @@ def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
                     {
                         'qid': qid,
                         'pid': pid,
-                        #'province': province,
                         'questions': questionstoutes,
                         'ascendancesM': ascendancesM,
                         'ascendancesF': ascendancesF,
                         'fiches': fiches,
                         'compte': compte,
+                        'code': nomcode,
                     }
                 )
     else:
@@ -255,7 +235,7 @@ def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
                                 personne_id=pid,
                                 assistant_id=request.user.id,
                                 questionnaire_id=qid,
-                                question_id=10000,
+                                question_id=1,
                                 fiche=1,
                                 reponsetexte=10000
                             )
@@ -265,12 +245,12 @@ def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
                       {
                           'qid': qid,
                           'pid': pid,
-                        #  'province': province,
                           'questions': questionstoutes,
                           'ascendancesM': ascendancesM,
                           'ascendancesF': ascendancesF,
                           'fiches': fiches,
                           'compte': compte,
+                          'code': nomcode,
                       }
                       )
 

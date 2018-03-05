@@ -5,13 +5,10 @@
 
 {% block content %}
 <h2>{{Questtitre}}</h2>
-<h2>Essai Personne_ID={{ pid }} Province ID = {{ province }} Verdict {{ Vid }}, Audience {{ Aid }}</h2>
+<h2> {{ code }} - {{ questionnaire }}</h2>
 {% csrf_token %}
    <input name="pid" type="hidden" value="{{ pid }}" />
    <input name="qid" type="hidden" value="{{ qid }}" />
-   <input name="province" type="hidden" value="{{ province }}" />
-   <input name="Aid" type="hidden" value="{{ Aid }}" />
-   <input name="Vid" type="hidden" value="{{ Vid }}" />
    <div class="tabber">
 
     {% for question in questions %}
@@ -26,14 +23,14 @@
         {% else %}
             {% if question.id not in ascendancesF and question.id not in ascendancesM %}
                 <tr class="{% cycle 'Q1' 'Q2' %}">
-                    {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province %}
+                    {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=user.profile.province %}
                     {% include "aide_snippet.html" with aide=question.aideen %}
                 </tr>
             {% elif question.id in ascendancesF and question.id in ascendancesM %}
                      {% for enfant in question.questionntp2_set.all %}
                         {% if forloop.counter == 1 %}
                             <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
-                                {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province relation=enfant.relation cible=enfant.cible classe="fillemere" %}
+                                {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=user.profile.province relation=enfant.relation cible=enfant.cible classe="fillemere" %}
                                 {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
                             </tr>
                         {% endif %}
@@ -42,7 +39,7 @@
                 <tr class="mere">
                     {% for enfant in question.questionntp2_set.all %}
                         {% if forloop.counter == 1 %}
-                            {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" %}
+                            {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=user.profile.province relation=enfant.relation cible=enfant.cible classe="mere" %}
                             {% include "aide_snippet.html" with aide=question.aideen %}
                 </tr>
                         {% endif %}
@@ -52,10 +49,10 @@
                 {% if enfant.id not in ascendancesM %}
                      <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
                      {% if enfant.id|divisibleby:2 %}
-                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fifille" %}
+                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=user.profile.province classe="fifille" %}
                          {% include "aide_snippet.html" with aide=enfant.aideen classe="fifille" %}
                     {% else %}
-                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" %}
+                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=user.profile.province classe="fille" %}
                          {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
                     {% endif %}
                      </tr>

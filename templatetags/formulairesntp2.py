@@ -15,11 +15,9 @@ def fait_dichou(a,b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid)
     if type == "DICHO":
@@ -42,11 +40,9 @@ def fait_court(a, b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid, cible, relation=relation)
     name = "q" + str(qid)
 
@@ -61,15 +57,13 @@ def fait_date(qid,b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
     an = ''
     mois = ''
     jour = ''
     defff = ''
-    if Resultatntp2.objects.filter(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid).exists():
-        ancienne = Resultatntp2.objects.get(personne__id = personneid, question__id = qid, assistant__id = assistant, verdict__id = vid, audience__id = aid)
+    if Resultatntp2.objects.filter(personne__id = personneid, question__id = qid, assistant__id = assistant).exists():
+        ancienne = Resultatntp2.objects.get(personne__id = personneid, question__id = qid, assistant__id = assistant)
         defff = ancienne.reponsetexte
         an, mois, jour = defff.split('-')
 
@@ -96,19 +90,17 @@ def fait_textechar(qid,type, *args, **kwargs):
     relation = kwargs['relation']
     cible = kwargs['cible']
     #assistant=1
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
     name = "q" + str(qid)
 
     if type == 'STRING' or type == 'CODESTRING':
-        question = forms.TextInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
+        question = forms.TextInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
     else:
-        question = forms.NumberInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
+        question = forms.NumberInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
 
     return question.render(name, defaultvalue)
 
@@ -121,11 +113,9 @@ def fait_table(qid,type, *args, **kwargs):
     cible = kwargs['cible']
     typetable = {"PROVINCE": "province", "PAYS": "pays", "LANGUE": "langue","VIOLATION": "violation"}
     tableext = typetable[type]
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
     Klass = apps.get_model('dataentry', tableext)
@@ -134,12 +124,12 @@ def fait_table(qid,type, *args, **kwargs):
     name = "q" + str(qid)
     liste = [('','')]
     for valeur in listevaleurs:
-       vid=str(valeur.id)
+       val=str(valeur.id)
        if type == "VIOLATION":
-           nen= vid + ' - ' + valeur.nom_en
+           nen= val + ' - ' + valeur.nom_en
        else:
             nen=valeur.nom_en
-       liste.append((vid, nen))
+       liste.append((val, nen))
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
@@ -151,20 +141,18 @@ def fait_reponse(qid,b, *args, **kwargs):
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
     listevaleurs = Reponsentp2.objects.filter(question_id=qid, )
     name = "q" + str(qid)
     liste = []
     for valeur in listevaleurs:
-        vid = valeur.reponse_valeur
+        val = valeur.reponse_valeur
         nen = valeur.reponse_en
-        liste.append((vid, nen))
+        liste.append((val, nen))
 
     liste.append(('',''))
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
@@ -180,11 +168,9 @@ def fait_table_valeurs(qid,type, *args, **kwargs):
     cible = kwargs['cible']
     typetable = {"HCR20": "hcr", "POSOLOGIE":"posologie", "VICTIME":"victime",}
     tableext = typetable[type]
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
     Klass = apps.get_model('dataentry', tableext)
@@ -193,9 +179,9 @@ def fait_table_valeurs(qid,type, *args, **kwargs):
     name = "q" + str(qid)
     liste = [('','')]
     for valeur in listevaleurs:
-       vid=str(valeur.reponse_valeur)
+       val=str(valeur.reponse_valeur)
        nen=valeur.nom_en
-       liste.append((vid, nen))
+       liste.append((val, nen))
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
@@ -211,11 +197,9 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     cible = kwargs['cible']
     typetable = {"ETABLISSEMENT": "etablissement", "MUNICIPALITE": "municipalite",}
     tableext = typetable[type]
-    vid = kwargs['Vid']
-    aid = kwargs['Aid']
     assistant = kwargs['uid']
 
-    defaultvalue = fait_default(personneid, qid, vid, aid, assistant=assistant)
+    defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
 
     Klass = apps.get_model('dataentry', tableext)
@@ -224,9 +208,9 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     name = "q" + str(qid)
     liste = [('','')]
     for valeur in listevaleurs:
-       vid=str(valeur.reponse_valeur)
+       val=str(valeur.reponse_valeur)
        nen=valeur.nom_en
-       liste.append((vid, nen))
+       liste.append((val, nen))
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
@@ -247,12 +231,12 @@ def enlevelisttag(texte):
     return re.sub(r"(</ul>)",r" ", texte)
 
 
-def fait_default(personneid, qid, vid, aid, *args, **kwargs):
+def fait_default(personneid, qid,  *args, **kwargs):
     ##fail la valeur par deffaut
     assistant = kwargs['assistant']
     defff = ''
-    if Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid).exists():
-        ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant,verdict__id=vid, audience__id=aid)
+    if Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant).exists():
+        ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant)
         defff = ancienne.reponsetexte
 
     return defff

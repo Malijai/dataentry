@@ -6,20 +6,19 @@
 
 {% block content %}
 <h2>{{Questtitre}}</h2>
-<h2>Essai Personne_ID={{ pid }} Province ID = {{ province }} nb de fiches = {{ compte }}</h2>
+<h2> {{ code }} -  With {{ compte }} hospitalizations</h2>
     {% csrf_token %}
     <input name="pid" type="hidden" value="{{ pid }}" />
     <input name="qid" type="hidden" value="{{ qid }}" />
-    <input name="province" type="hidden" value="{{ province }}" />
     <div class="tabber">
         {% for x in fiches %}
             {% if forloop.first %}
-                <div class="tabbertab">{% include "datehospit_snippet.html" with persid=pid province=province ordre=x %}
+                <div class="tabbertab">{% include "datehospit_snippet.html" with persid=pid province=user.profile.province ordre=x %}
                 <button type="submit" class="btn-default" name="remove_{{ x }}" >Remove the current card # {{ x }}</button>
                 <div class="tabber">
             {% else %}
                 </div>
-                <div class="tabbertab">{% include "datehospit_snippet.html" with persid=pid province=province ordre=x %}
+                <div class="tabbertab">{% include "datehospit_snippet.html" with persid=pid province=user.profile.province ordre=x %}
                 <button type="submit" class="btn-default" name="remove_{{ x }}" >Remove the current card # {{ x }}</button>
                 <div class="tabber">
             {% endif %}
@@ -35,14 +34,14 @@
                 {% else %}
                     {% if question.id not in ascendancesF and question.id not in ascendancesM %}
                         <tr class="{% cycle 'Q1' 'Q2' %}">
-                         {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province ordre=x %}
+                         {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=user.profile.province ordre=x %}
                          {% include "aide_snippet.html" with aide=question.aideen %}
                         </tr>
                     {% elif question.id in ascendancesF and question.id in ascendancesM %}
                          {% for enfant in question.questionntp2_set.all %}
                             {% if forloop.counter == 1 %}
                             <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
-                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=province relation=enfant.relation cible=enfant.cible classe="fillemere" ordre=x %}
+                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid province=user.profile.province relation=enfant.relation cible=enfant.cible classe="fillemere" ordre=x %}
                                 {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
                             </tr>
                             {% endif %}
@@ -51,7 +50,7 @@
                             <tr class="mere">
                         {% for enfant in question.questionntp2_set.all %}
                             {% if forloop.counter == 1 %}
-                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=province relation=enfant.relation cible=enfant.cible classe="mere" ordre=x %}
+                                {% include "champsrepetntp2_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id persid=pid  province=user.profile.province relation=enfant.relation cible=enfant.cible classe="mere" ordre=x %}
                                 {% include "aide_snippet.html" with aide=question.aideen %}
                             </tr>
                             {% endif %}
@@ -60,7 +59,7 @@
                     {% for enfant in question.questionntp2_set.all %}
                         {% if enfant.id not in ascendancesM %}
                              <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
-                                 {% include "champsrepetntp2_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=province classe="fille" ordre=x %}
+                                 {% include "champsrepetntp2_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id persid=pid province=user.profile.province classe="fille" ordre=x %}
                                  {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
                              </tr>
                         {% endif %}
@@ -81,7 +80,7 @@
 {% block pagination %}
 
 <div class="pagination">
-
+<a href="{% url 'SelectPersonne' %}" class='button'>Return to questionnaire choice</a>
 {% if fiches.has_other_pages %}
     {% if fiches.has_previous %}
       <a href="?page={{ fiches.previous_page_number }}">&laquo;</a>

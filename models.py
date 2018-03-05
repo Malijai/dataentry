@@ -231,35 +231,6 @@ class Reponsentp2(models.Model):
         return u'%s' % self.nom_en
 
 
-class Verdict(models.Model):
-    reponse_valeur = models.CharField(max_length=200)
-    nom_en = models.CharField(max_length=200, )
-    nom_fr = models.CharField(max_length=200, )
-
-    class Meta:
-        ordering = ['id']
-
-    def __str__(self):
-        return '%s' % self.nom_en
-
-    def __unicode__(self):
-        return u'%s' % self.nom_en
-
-
-class Audience(models.Model):
-    nom_en = models.CharField(max_length=200, )
-    nom_fr = models.CharField(max_length=200, )
-
-    class Meta:
-        ordering = ['id']
-
-    def __str__(self):
-        return '%s' % self.nom_en
-
-    def __unicode__(self):
-        return u'%s' % self.nom_en
-
-
 #######################
 ## Enregistrement des reponses des donnees NON repetitives
 DEFAULT_VERD = 100
@@ -267,14 +238,12 @@ class Resultatntp2(models.Model):
     personne = models.ForeignKey(Personne, on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Questionntp2, on_delete=models.DO_NOTHING)
     assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    verdict = models.ForeignKey(Verdict, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
-    audience = models.ForeignKey(Audience, default=DEFAULT_VERD, on_delete=models.DO_NOTHING)
     reponsetexte = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('personne', 'question','verdict','audience','assistant'),)
+        unique_together = (('personne', 'question','assistant'),)
 
 
 #######################

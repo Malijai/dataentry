@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Resultatrepetntp2, Reponsentp2
+from dataentry.models import Resultatrepetntp2, Reponsentp2, Questionntp2
 from django import forms
 
 register = template.Library()
@@ -169,9 +169,9 @@ def fait_textechar(qid,type, *args, **kwargs):
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid) + "Z_Z" + str(ordre)
     if type == 'STRING' or type == 'CODESTRING':
-        question = forms.TextInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
+        question = forms.TextInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
     else:
-        question = forms.NumberInput(attrs={'size': 10, 'id': IDCondition,'name': name,})
+        question = forms.NumberInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
 
     return question.render(name, defaultvalue)
 
@@ -260,8 +260,12 @@ def fait_dateh(persid,province,*args, ** kwargs):
     assistant = kwargs['assistant']
     datehosp = ''
 
-    if Resultatrepetntp2.objects.filter(personne__id=persid, assistant__id=assistant, question_id=2001, fiche=ordre).exists():
-        ancienne = Resultatrepetntp2.objects.get(personne__id=persid, assistant__id=assistant, question__id=2001, fiche=ordre)
+    question = Questionntp2.objects.get(typequestion_id=60, questionnaire_id=2000).pk
+
+    if Resultatrepetntp2.objects.filter(personne__id=persid, assistant__id=assistant, question_id=question, fiche=ordre).exists():
+        ancienne = Resultatrepetntp2.objects.get(personne__id=persid, assistant__id=assistant, question__id=question, fiche=ordre)
         datehosp = ancienne.reponsetexte
+    else:
+        datehosp = ordre
 
     return '<h3>' + str(datehosp) + '</h3><b>Hospitalized on: ' + str(datehosp) + '</b>'
