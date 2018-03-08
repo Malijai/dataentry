@@ -68,9 +68,12 @@
              {% endfor %}
              </table>
              </div>
-             <button type="submit" class="btn-default" name="current_{{ x }}" >Save current card # {{ x }}</button>
-             <button type="submit" class="btn-default" name="add_{{ x }}" >Save current card and add one</button>
-          </div>
+                 <div class="placeboutons">
+                     <button type="submit" class="btn-default" name="current_{{ x }}" >Save current card # {{ x }}</button>
+                     <button type="submit" class="btn-default" name="add_{{ x }}" >Save current card and add one</button>
+                     <a href="{% url 'SelectPersonne' %}">Return to questionnaire choice</a>
+                 </div>
+             </div>
          {% endfor %}
 
    </div><!--Fermeture de la boite à onglets-->
@@ -80,7 +83,7 @@
 {% block pagination %}
 
 <div class="pagination">
-<a href="{% url 'SelectPersonne' %}" class='button'>Return to questionnaire choice</a>
+
 {% if fiches.has_other_pages %}
     {% if fiches.has_previous %}
       <a href="?page={{ fiches.previous_page_number }}">&laquo;</a>

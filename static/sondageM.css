@@ -108,7 +108,7 @@ background:#D0EDBB;
 
 .tabberlive {
  margin-top:1em;
- margin-bottom:1em;
+ margin-bottom:26px;
 }
 
 /*--------------------------------------------------
@@ -414,6 +414,7 @@ div.boite {
     background-color: #f8f8f8;
 	border:  #1459A8 solid 2px;
  }
+
 .bouton{
 display: block;
 border:none;
@@ -483,6 +484,7 @@ font-size: 1em;
     text-decoration: none;
     border-radius: 5px;
     border: 1px solid #ddd; /* Gray */
+    font-size: 16px;
 }
 
 .pagination a.active {
@@ -494,4 +496,41 @@ font-size: 1em;
 .pagination a:hover:not(.active) {
     background-color: #ddd;
     border-radius: 5px;
+}
+
+.btn-default {
+    background-color: #4CAF50; /* Green */
+    border: blue;
+    color: black;
+    padding: 4px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 0px 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid white;
+    width: 250px;
+}
+
+.placeboutons {
+    display: inline-block;
+    background-color: #244663;
+    color: white;
+    padding: 5px 5px;
+    text-align: center;
+    font: bold 1em;
+    width : 100%;
+	height: 30px;
+}
+
+.placeboutons a {
+    color: white;
+    float: left;
+    padding: 4px 8px;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid #ddd; /* Gray */
+    font-size: 16px;
 }
