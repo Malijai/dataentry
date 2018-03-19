@@ -10,7 +10,7 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.apps import apps
 from reportlab.pdfgen import canvas
 from django.core.files.storage import FileSystemStorage
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
@@ -108,7 +108,7 @@ def some_pdf(request,pk):
     bullettes = styles['Code']
 #    articles_list = Article.objects.all()
 #    for article in articles_list:
-    im = '<img src="media/images/pointblanc.jpg"/>'
+#    im = '<img src="media/images/pointblanc.jpg"/>'
     viol = 0
     for question in Questionntp2.objects.filter(questionnaire_id=pk):
 #        if question.typequestion.nom == 'TITLE':
@@ -116,11 +116,11 @@ def some_pdf(request,pk):
             ptext = "<b>{}</b>".format(question.questionen)
             Story.append(Spacer(1, 0.2 * inch))
             Story.append(Paragraph(ptext, styles["Heading3"]))
-            Story.append(Paragraph(im + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Variable Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Question text", styles["Normal"]))
+            Story.append(Paragraph(".&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Variable Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Question text", styles["Normal"]))
         elif question.typequestion.nom == 'COMMENT':
             ptext = "<b>{}</b>".format(question.questionen)
             Story.append(Paragraph(ptext, styles["Heading4"]))
-            Story.append(Paragraph(im + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Variable Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Question text", styles["Normal"]))
+            Story.append(Paragraph(".&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Variable Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Question text", styles["Normal"]))
         else:
             x = 15 - len(question.varname)
             espace = ''
@@ -133,28 +133,28 @@ def some_pdf(request,pk):
             liste = [(1, 'Yes'), (0, 'No'), (98, 'NA'), (99, 'Unknown')]
             for list in liste:
                 espace = '&nbsp;'*25 +'&#x00B7;'
-                bogustext = im + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
+                bogustext = '&#124;' + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "BOOLEAN":
             liste = [(1, 'Yes mentioned'), (3, 'maybe but not explicit'), (100, 'No not mentioned'), (98, 'NA'), (99, 'Unknown')]
             for list in liste:
                 espace = '&nbsp;'*25 +'&#x00B7;'
-                bogustext = im + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
+                bogustext = '&#124;' + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "COUR":
             liste = [(1, 'Municipal'), (2, 'Provincial'), (3, 'Superior'),]
             for list in liste:
                 espace = '&nbsp;'*25 +'&#x00B7;'
-                bogustext = im + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
+                bogustext = '&#124;' + espace + str(list[0]) + '&nbsp;&nbsp;' + str(list[1])
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "CATEGORIAL":
             liste = Reponsentp2.objects.filter(question_id=question.id )
             for list in liste:
                 espace = '&nbsp;'*25 +'&#x00B7;'
-                bogustext = im + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + str(list.reponse_en)
+                bogustext = '&#124;' + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + str(list.reponse_en)
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "HCR20" or question.typequestion.nom == "POSOLOGIE" or question.typequestion.nom == "VICTIME":
@@ -164,24 +164,24 @@ def some_pdf(request,pk):
             liste = Klass.objects.all()
             for list in liste:
                 espace = '&nbsp;'*25 +'&#x00B7;'
-                bogustext = im + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + str(list.nom_en)
+                bogustext = '&#124;' + espace + str(list.reponse_valeur) + '&nbsp;&nbsp;' + str(list.nom_en)
                 p = Paragraph(bogustext, bullettes)
                 Story.append(p)
         elif question.typequestion.nom == "PAYS" or question.typequestion.nom == "LANGUE":
-            bogustext = im + '&nbsp;' * 20 + "Stat can list of Countries or Languages"
+            bogustext = '&#124;' + '&nbsp;' * 20 + "Stat can list of Countries or Languages"
             p = Paragraph(bogustext, bullettes)
             Story.append(p)
         elif question.typequestion.nom == "VIOLATION":
             viol = 1
-            bogustext = im + '&nbsp;' * 20 + "See VIOLATION CODES at the end of the document"
+            bogustext = '&#124;' + '&nbsp;' * 20 + "See VIOLATION CODES at the end of the document"
             p = Paragraph(bogustext, bullettes)
             Story.append(p)
         elif question.typequestion.nom =="ETABLISSEMENT" or question.typequestion.nom == "MUNICIPALITE":
-            bogustext = im + '&nbsp;' * 20 + "List of available Hospitals or Courts in each province"
+            bogustext = '&#124;' + '&nbsp;' * 20 + "List of available Hospitals or Courts in each province"
             p = Paragraph(bogustext, bullettes)
             Story.append(p)
         elif question.typequestion.nom == "CODEDATE" or question.typequestion.nom == "CODESTRING":
-            bogustext = im + '&nbsp;' * 20 + "Data will be encrypted before saving"
+            bogustext = '&#124;' + '&nbsp;' * 20 + "Data will be encrypted before saving"
             p = Paragraph(bogustext, bullettes)
             Story.append(p)
 
@@ -194,7 +194,7 @@ def some_pdf(request,pk):
         for list in liste:
             espace1 = '&nbsp;'*3 + '&#x00B7;'
             espace2 = '&nbsp;'*3
-            bogustext = im + espace1 + str(list.id) + espace2 + list.nom_en
+            bogustext = '&#124;' + espace1 + str(list.id) + espace2 + list.nom_en
             p = Paragraph(bogustext,  bullettes)
             Story.append(p)
 
