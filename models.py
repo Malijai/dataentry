@@ -133,7 +133,7 @@ class Etablissement(models.Model):
     province = models.ForeignKey(Province,default=DEFAULT_PID, on_delete=models.DO_NOTHING)
 
     class Meta:
-        ordering = ['reponse_valeur']
+        ordering = ['nom_en']
 
     def __str__(self):
         return '%s' % self.nom_en
@@ -150,7 +150,7 @@ class Municipalite(models.Model):
     province = models.ForeignKey(Province,default=DEFAULT_PID, on_delete=models.DO_NOTHING)
 
     class Meta:
-        ordering = ['reponse_valeur']
+        ordering = ['nom_en']
 
     def __str__(self):
         return '%s' % self.nom_en
