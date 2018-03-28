@@ -186,7 +186,7 @@ class Questionnaire(models.Model):
 #######################
 ## questions utilisees pour tous les questionnaires
 
-DEFAULT_PARENT_ID = 0
+DEFAULT_PARENT_ID = 1
 class Questionntp2(models.Model):
     questionno = models.IntegerField()
     questionen = models.CharField(max_length=255,)
