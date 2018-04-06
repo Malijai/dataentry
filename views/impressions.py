@@ -223,11 +223,11 @@ def some_texte(request, pid):
     personne = Personne.objects.get(pk=pid)
     csv_data = ([])
     debut = []
-    debut.append('-')
+    debut.append('Province & File code')
     debut.append(personne.province.nom_en)
     debut.append(personne.code)
     csv_data.append(debut)
-    questionnaires = Questionnaire.objects.all()
+    questionnaires = Questionnaire.objects.filter(id__gt=1 )
     for questionnaire in questionnaires:
         questions = Questionntp2.objects.filter(qstyle=1, questionnaire_id=questionnaire.id).order_by('questionno')
         ligne2 = []
@@ -281,7 +281,7 @@ def fait_reponse(reponsetexte, question, province):
     if question.typequestion.nom == 'CATEGORIAL':
         resultat = Reponsentp2.objects.get(question=question.id,reponse_valeur=reponsetexte).__str__()
     elif question.typequestion.nom == 'DICHO' or question.typequestion.nom  == 'DICHOU':
-        resultat = CHOIX_ONUK[reponsetexte]
+        resultat = CHOIX_ONUK[int(reponsetexte)]
     elif question.typequestion.nom == 'ETABLISSEMENT':
         resultat = Etablissement.objects.get(province__id=province,reponse_valeur=reponsetexte).__str__()
     elif question.typequestion.nom == 'MUNICIPALITE':
