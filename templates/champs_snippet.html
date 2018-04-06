@@ -1,15 +1,25 @@
 {% load formulairesntp2 %}
 {% with type=typequest|stringformat:"s" %}
 
-{% if type == "STRING" or type == "CODESTRING" or type == "NUMBER" %}
+{% if type == "STRING" or type == "NUMBER" %}
     {% autoescape off %}
         <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
         <td class=" {{ classe }} " width = "20%">{% fait_textechar questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=0 %}</td>
     {% endautoescape %}
-{% elif type == "DATE" or type == "CODEDATE" %}
+{% elif type == "CODESTRING" %}
+    {% autoescape off %}
+        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
+        <td class=" {{ classe }} " width = "20%">{% fait_codetexte questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=0  varname=varname %}</td>
+    {% endautoescape %}
+{% elif type == "DATE" %}
     {% autoescape off %}
         <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
         <td class=" {{ classe }} " width = "20%">{% fait_date questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>
+    {% endautoescape %}
+{% elif type == "CODEDATE" %}
+    {% autoescape off %}
+        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
+        <td class=" {{ classe }} " width = "20%">{% fait_datecode questid type persid=persid parent=parent relation=relation cible=cible uid=user.id varname=varname %}</td>
     {% endautoescape %}
 {% elif type == "BOOLEAN" or type == "DICHO" or type == "DICHOU" or type == "DICHON" %}
     {% autoescape off %}

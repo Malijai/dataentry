@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from dataentry.models import Questionnaire, Reponsentp2, Resultatrepetntp2, Questionntp2, Typequestion,Violation
+from dataentry.models import Questionnaire, Reponsentp2, Resultatrepetntp2, Questionntp2, Violation, Etablissement, Municipalite
+from dataentry.models import Personne, Resultatntp2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-import logging
-from dataentry.encrypter import Encrypter
 import csv
+from django.template import loader, Context
 from django.http import HttpResponse, StreamingHttpResponse
 from django.apps import apps
 from reportlab.pdfgen import canvas
@@ -14,6 +14,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
+from dataentry.dataentry_constants import CHOIX_ONUK
 #A necessite l'installation de reportlab (pip install reportlab)
 import datetime
 
@@ -28,7 +29,7 @@ DATE = datetime.datetime.now().strftime('%Y %b %d')
 
 
 #Pour exportation en CSV
-@login_required(login_url=settings.LOGIN_URI)
+
 class Echo(object):
     """An object that implements just the write method of the file-like
     interface.
@@ -37,31 +38,32 @@ class Echo(object):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 
+
+@login_required(login_url=settings.LOGIN_URI)
 def ffait_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-    questions = Questionntp2.objects.filter(questionnaire_id=2000).order_by('id')
+    questions = Questionntp2.objects.filter(qstyle=1).order_by('questionnaire_id','questionno')
     personnes = Personne.objects.all()
     toutesleslignes = ([])
-
     #writer = csv.writer(response)
-
     entete = []
     entete.append('ID')
     for question in questions:
-        entete.append(question.varname)
+       entete.append(question.varname)
 
     #writer.writerow(entete)
     toutesleslignes.append(entete)
     for personne in personnes:
-        ligne = [personne.id]
+        ligne = [personne.code]
         for question in questions:
-            donnee = Resultatrepetntp2.objects.filter(question_id=question.id, fiche=7, assistant_id=1, personne_id=personne.id)
+            donnee = Resultatntp2.objects.filter(pk=personne.id, question_id=question.id,assistant_id=1,)
             if donnee:
                 ligne.append(donnee[0].reponsetexte)
             else:
                 ligne.append('-')
+
         toutesleslignes.append(ligne)
         #writer.writerow([donnee for donnee in ligne])
 
@@ -86,6 +88,7 @@ def myFirstPage(canvas, doc):
     canvas.drawString(inch, 0.70 * inch, "NTP Community / %s" % PAGE_INFO)
     canvas.restoreState()
 
+
 def myLaterPages(canvas, doc):
     canvas.saveState()
     canvas.setFont('Helvetica',10)
@@ -95,6 +98,8 @@ def myLaterPages(canvas, doc):
     canvas.drawString(inch, 0.70 * inch, "Page %d %s" % (doc.page, PAGE_INFO))
     canvas.restoreState()
 
+
+@login_required(login_url=settings.LOGIN_URI)
 def some_pdf(request,pk):
     fichier = 'QID_' + str(pk) + '_' + NOM_FICHIER_PDF
 #    doc = SimpleDocTemplate("/tmp/{}".format(NOM_FICHIER_PDF))
@@ -205,3 +210,88 @@ def some_pdf(request,pk):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(fichier)
     return response
+
+
+def some_texte(request, pid):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
+    province = request.user.profile.province
+    # The data is hard-coded here, but you could load it from a database or
+    # some other source.
+
+    personne = Personne.objects.get(pk=pid)
+    csv_data = ([])
+    debut = []
+    debut.append('-')
+    debut.append(personne.province.nom_en)
+    debut.append(personne.code)
+    csv_data.append(debut)
+    questionnaires = Questionnaire.objects.all()
+    for questionnaire in questionnaires:
+        questions = Questionntp2.objects.filter(qstyle=1, questionnaire_id=questionnaire.id).order_by('questionno')
+        ligne2 = []
+        ligne2.append(questionnaire.nom_en)
+        csv_data.append(ligne2)
+        if questionnaire.id != 2000:
+            for question in questions:
+                ligne = []
+                ligne.append(question.varname)
+                ligne.append(question.questionen)
+                donnee = Resultatntp2.objects.filter(personne__id=pid, question__id=question.id, assistant_id=1, )
+                if donnee:
+                    reponse = fait_reponse(donnee[0].reponsetexte, question, province)
+                    ligne.append(reponse)
+                else:
+                    ligne.append('-')
+                csv_data.append(ligne)
+        else:
+            donnees = Resultatrepetntp2.objects.order_by().filter(personne__id=pid, assistant__id=request.user.id,
+                                                                  questionnaire__id=2000).values_list('fiche', flat=True).distinct()
+            compte = donnees.count()
+            ligne2 = []
+            ligne2.append(str(compte) + ' different hospitalizations')
+            csv_data.append(ligne2)
+            for i in donnees :
+                ligne2 = []
+                ligne2.append('Hospitalization card number ' + str(i))
+                csv_data.append(ligne2)
+                for question in questions:
+                    ligne = []
+                    ligne.append(question.varname)
+                    ligne.append(question.questionen)
+                    donnee = Resultatrepetntp2.objects.filter(pk=pid, question_id=question.id, assistant_id=1, fiche=i)
+                    if donnee:
+                        reponse = fait_reponse(donnee[0].reponsetexte, question, province)
+                        ligne.append(reponse)
+                    else:
+                        ligne.append('-')
+                    csv_data.append(ligne)
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer,dialect="excel-tab")
+    response = StreamingHttpResponse((writer.writerow(row) for row in csv_data),
+                                     content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="' + str(personne.code) + '.txt"'
+    return response
+
+
+def fait_reponse(reponsetexte, question, province):
+
+    if question.typequestion.nom == 'CATEGORIAL':
+        resultat = Reponsentp2.objects.get(question=question.id,reponse_valeur=reponsetexte).__str__()
+    elif question.typequestion.nom == 'DICHO' or question.typequestion.nom  == 'DICHOU':
+        resultat = CHOIX_ONUK[reponsetexte]
+    elif question.typequestion.nom == 'ETABLISSEMENT':
+        resultat = Etablissement.objects.get(province__id=province,reponse_valeur=reponsetexte).__str__()
+    elif question.typequestion.nom == 'MUNICIPALITE':
+        resultat = Municipalite.objects.get(province__id=province, reponse_valeur=reponsetexte).__str__()
+    else:
+        resultat = reponsetexte
+    return resultat
+
+
+
+
+
+

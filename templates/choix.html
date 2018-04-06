@@ -27,21 +27,15 @@
            <h3>Non repetitive</h3><b>For non repetitives questionnaires</b>
             <input name="verdictid1" type="hidden" value="100" />
             <input name="audienceid1" type="hidden" value="100" />
+               <p>Select one case and one questionnaire.<br>These questionnaires are made to code:
                 <ul>
-                Select one province, one case and one questionnaire. These questionnaires are made to code
-                    <li>the sociodemographic informations</li>
-                     <li>the Index hospitalization,</li>
-                     <li> the Index verdict (the NCR verdict linked with the hospitalization) and</li>
-                     <li>the last Review Board Hearing</li>
-                </ul>
+                    <li>the sociodemographic informations at index hospitalization</li>
+                    <li>the Index hospitalization</li>
+                    <li>the Index verdict (the NCR verdict linked with the index hospitalization) and</li>
+                    <li>the last Review Board Hearing (linked with the index hospitalization</li>
+                </ul></p>
                <table>
                 <tr><td></td><td></td></tr>
-                <!--<tr><td>Select Province</td><td><select name="provinceid">-->
-                    <!--<option value="">Select a province</option>-->
-                    <!--{% for province in provinces %}-->
-                    <!--<option value="{{province.id}}">{{ province.nom_en}}</option>-->
-                    <!--{% endfor %}-->
-                    <!--</select></td></tr>-->
                 <tr><td>Personne</td><td><select name="personneid" >
                     <option value="">Select a case</option>
                     {% for personne in personnes %}
@@ -51,37 +45,29 @@
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
                     <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
-                     {% if questionnaire.id == 4 or questionnaire.id == 10 or questionnaire.id == 11 or questionnaire.id == 20 or questionnaire.id == 21 or questionnaire.id == 1000 %}
-                        <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
-                    {% endif %}
+                        {% if questionnaire.id == 4 or questionnaire.id == 10 or questionnaire.id == 11 or questionnaire.id == 20 or questionnaire.id == 21 or questionnaire.id == 1000 %}
+                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                        {% endif %}
                     {% endfor %}
                 </select></td></tr>
+                <tr><td></td><td><button type="submit" class="placeboutons" name="Choisir1">Choose</button></td></tr>
             </table>
-                <button type="submit" name="Choisir1">Choose</button>
         </form>
        </div>
-
        <div class="tabbertab">
            <form method="post" action="">
            {% csrf_token %}
            <h3>Repetitives</h3><b>For all repetitives questionnaires</b>
-                <ul>
-                Select one province, one case and one questionnaire. You will be able to add as many card as there are events.
-                    These questionnaires are made to code:
-                     <li>the sociodemographic informations which can change over time (past and future)</li>
-                     <li>all the hospitalization except the Index one (past and future)</li>
-                     <li>minimal informations from all Review Board Hearings (past and future)</li>
-                </ul>
-
+            <p>Select one case and one questionnaire. You will be able to add as many card as there are events.
+               <br>These questionnaires are made to code:
+               <ul>
+                  <li>the sociodemographic informations which can change over time (past and future)</li>
+                  <li>all the hospitalizations except the Index one (past and future)</li>
+                  <li>minimal informations from all Review Board Hearings (past and future)</li>
+               </ul></p>
             <table>
                 <tr><td></td><td></td></tr>
-                <!--<tr><td>Select Province</td><td><select name="provinceid">-->
-                    <!--<option value="">Select a province</option>-->
-                    <!--{% for province in provinces %}-->
-                    <!--<option value="{{province.id}}">{{ province.nom_en}}</option>-->
-                    <!--{% endfor %}-->
-                    <!--</select></td></tr>-->
-                <tr><td>Personne</td><td><select name="personneid" >
+                 <tr><td>Personne</td><td><select name="personneid" >
                     <option value="">Select a case</option>
                     {% for personne in personnes %}
                     <option value="{{personne.id}}">{{ personne.code}}</option>
@@ -95,10 +81,29 @@
                         {% endif %}
                     {% endfor %}
                 </select></td></tr>
+                <tr><td></td><td><button type="submit" class="placeboutons" name="Repetitif">Choose</button></td></tr>
             </table>
-                <button type="submit" name="Choisir4">Choose</button>
-        </form>
-
+       </form>
+       </div>
+       <div class="tabbertab">
+           <form method="post" action="">
+           {% csrf_token %}
+           <h3>Closing / Verifying</h3>
+               <p><b>For closing a finished file</b><br><br>
+               Once you are satisfied you can close the file, it will not appear in the file choices anymore
+               </p>
+            <table>
+                <tr><td></td><td></td></tr>
+                 <tr><td>Personne</td><td><select name="personneid" >
+                    <option value="">Select a case</option>
+                    {% for personne in personnes %}
+                    <option value="{{personne.id}}">{{ personne.code}}</option>
+                    {% endfor %}
+                    </select></td></tr>
+                <tr><td>First, select one case and verify the essential dates</td><td><button type="submit" class="placeboutons" name="Verifier">See essential dates</button></td></tr>
+                <tr><td>Once you are satisfied, close the selected file</td><td><button type="submit" class="placeboutons" name="Fermer">Close the file</button></td></tr>
+            </table>
+           </form>
        </div>
        <div class="tabbertab">
 <h3>To export questionnaires in PDF</h3>

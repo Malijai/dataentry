@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-
+DEFAULT_UID=1       #met tous les utilisateurs par defauta 1 (maliadmin)
 #######################
 ## listes de valeurs typequestion_id=13 (PROVINCE)
 class Province(models.Model):
@@ -36,14 +36,22 @@ class Pays(models.Model):
 class Personne(models.Model):
     code = models.CharField(max_length=200,)
     province = models.ForeignKey(Province, on_delete=models.DO_NOTHING)
-    ddn = models.CharField(max_length=200,blank=True, null=True)
-    diedon = models.CharField(max_length=200,blank=True, null=True)
-    dod = models.CharField(max_length=200,blank=True, null=True)
     completed = models.CharField(max_length=200,blank=True, null=True)
-    sexe = models.CharField(max_length=200,blank=True, null=True)
+    assistant = models.ForeignKey(User, default=DEFAULT_UID, on_delete=models.DO_NOTHING)
+    pid_sed = models.TextField(blank=True, null=True)
+    pid_nam = models.TextField(blank=True, null=True)
+    pid_sddob = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    assistant = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+
+    class Meta:
+       ordering = ['province','code']
+
+    def __str__(self):
+        return '%s' % self.code
+
+    def __unicode__(self):
+        return u'%s' % self.code
 
 
 class Langue(models.Model):
@@ -161,7 +169,7 @@ class Municipalite(models.Model):
 
 class Typequestion(models.Model):
     nom = models.CharField(max_length=200, )
-    table = models.CharField(max_length=200, blank=True, null=True)
+    tatable = models.CharField(max_length=200, blank=True, null=True)
     taille = models.CharField(max_length=200, )
 
     def __str__(self):
@@ -225,10 +233,10 @@ class Reponsentp2(models.Model):
        ordering = ['reponse_valeur']
 
     def __str__(self):
-        return '%s' % self.nom_en
+        return '%s' % self.reponse_en
 
     def __unicode__(self):
-        return u'%s' % self.nom_en
+        return u'%s' % self.reponse_en
 
 
 #######################
@@ -243,6 +251,12 @@ class Resultatntp2(models.Model):
 
     class Meta:
         unique_together = (('personne', 'question','assistant'),)
+
+    def __str__(self):
+        return '%s' % self.reponsetexte
+
+    def __unicode__(self):
+        return u'%s' % self.reponsetexte
 
 
 #######################
@@ -259,11 +273,16 @@ class Resultatrepetntp2(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
     class Meta:
         unique_together = (('personne', 'assistant', 'questionnaire', 'question', 'fiche',))
 
         ordering = ['personne', 'assistant', 'questionnaire', 'question', 'fiche']
+
+    def __str__(self):
+        return '%s' % self.reponsetexte
+
+    def __unicode__(self):
+        return u'%s' % self.reponsetexte
 
 ############################################
 

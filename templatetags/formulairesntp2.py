@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 from django import template
 import re
 from django.apps import apps
-from dataentry.models import Reponsentp2, Resultatntp2
+from dataentry.models import Reponsentp2, Resultatntp2, Personne
 from django import forms
+from dataentry.dataentry_constants import CHOIX_ONUK, CHOIX_ON, CHOIX_BOOLEAN
 
 register = template.Library()
 
@@ -21,13 +22,17 @@ def fait_dichou(a,b, *args, **kwargs):
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid)
     if type == "DICHO":
-        liste = [(1, 'Yes'),(0, 'No')]
+        dict = CHOIX_ON
+        liste = dict.items()
         question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
     elif type == "BOOLEAN":
-        liste = [('', ''),(1, 'Yes mentioned'),(100, 'No not mentioned'),(3, 'maybe but not explicit'),(98, 'NA'), (99,'Unknown')]
+        # Choix normand plus que booleen
+        dict = CHOIX_BOOLEAN
+        liste = dict.items()
         question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
     else:
-        liste = [(1, 'Yes'),(0, 'No'),(98, 'NA'), (99,'Unknown')]
+        dict = CHOIX_ONUK
+        liste = dict.items()
         question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))
@@ -46,8 +51,8 @@ def fait_court(a, b, *args, **kwargs):
     IDCondition = fait_id(qid, cible, relation=relation)
     name = "q" + str(qid)
 
-    liste = [(1, 'Municipal'), (2, 'Provincial'), (3, 'Superior')]
-    question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
+    court_liste = [(1, 'Municipal'), (2, 'Provincial'), (3, 'Superior')]
+    question = forms.Select(choices=court_liste, attrs={'id': IDCondition, 'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))
 
@@ -61,48 +66,83 @@ def fait_date(qid,b, *args, **kwargs):
     an = ''
     mois = ''
     jour = ''
-    defff = ''
     if Resultatntp2.objects.filter(personne__id = personneid, question__id = qid, assistant__id = assistant).exists():
-        ancienne = Resultatntp2.objects.get(personne__id = personneid, question__id = qid, assistant__id = assistant)
-        defff = ancienne.reponsetexte
-        an, mois, jour = defff.split('-')
+        ancienne = Resultatntp2.objects.get(personne__id = personneid, question__id = qid,
+                                            assistant__id = assistant).__str__()
+        an, mois, jour = ancienne.split('-')
 
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid)
+    day, month, year = fait_select_date(IDCondition, name)
+    #name=q69_year, id=row...
 
-    years = {x : x for x in range(1910,2019)}
-    years[''] = ''
-    days = {x : x for x in range(1,32)}
-    days[''] = ''
-    months=(('',''),(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),(9,'Sept'),(10,'Oct'),(11,'Nov'),(12,'Dec'))
-    year = forms.Select(choices = years.items(), attrs={'id': IDCondition, 'name': name + '_year', })
-    month = forms.Select(choices = months, attrs={ 'name': name + '_month' })
-    day = forms.Select(choices = days.items(), attrs={'name': name + '_day' })
-#name=q69_year, id=row...
+    return year.render(name + '_year', an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
 
-    return year.render(name + '_year' , an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
+
+@register.simple_tag
+def fait_datecode(qid, type, *args, **kwargs):
+    personneid = kwargs['persid']
+    relation = kwargs['relation']
+    cible = kwargs['cible']
+    assistant = kwargs['uid']
+    varname = kwargs['varname']
+    an = ''
+    mois = ''
+    jour = ''
+    ancienne = ''
+
+    personne = Personne.objects.get(pk=personneid)
+    if personne.__dict__[varname] is not None:
+        ancienne = 1
+
+    IDCondition = fait_id(qid, cible, relation=relation)
+    name = "q" + str(qid)
+    day, month, year = fait_select_date(IDCondition, name)
+    # name=q69_year, id=row...
+    if ancienne:
+        return 'Already Encrypted data'
+    else:
+        return year.render(name + '_year', an) + month.render(name + '_month',mois) + day.render(name + '_day',jour)
 
 
 @register.simple_tag
 def fait_textechar(qid,type, *args, **kwargs):
-
     personneid = kwargs['persid']
     relation = kwargs['relation']
     cible = kwargs['cible']
-    #assistant=1
     assistant = kwargs['uid']
 
     defaultvalue = fait_default(personneid, qid, assistant=assistant)
     IDCondition = fait_id(qid,cible,relation=relation)
-
     name = "q" + str(qid)
 
-    if type == 'STRING' or type == 'CODESTRING':
+    if type == 'STRING':
         question = forms.TextInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
     else:
         question = forms.NumberInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
 
     return question.render(name, defaultvalue)
+
+
+@register.simple_tag
+def fait_codetexte(qid,type, *args, **kwargs):
+    personneid = kwargs['persid']
+    relation = kwargs['relation']
+    cible = kwargs['cible']
+    assistant = kwargs['uid']
+    varname = kwargs['varname']
+    ancienne = ''
+    personne = Personne.objects.get(pk=personneid)
+    if personne.__dict__[varname] is not None:
+        ancienne = 1
+
+    IDCondition = fait_id(qid,cible,relation=relation)
+    name = "q" + str(qid)
+    if ancienne:
+        return 'Already Encrypted data'
+    else:
+        question = forms.TextInput(attrs={'size': 30, 'id': IDCondition,'name': name,})
+        return question.render(name, '')
 
 
 @register.simple_tag
@@ -122,18 +162,14 @@ def fait_table(qid,type, *args, **kwargs):
     # Klass = apps.get_model('dataentry'', typetable[b])
     listevaleurs = Klass.objects.all()
     name = "q" + str(qid)
-    liste = [('','')]
-    for valeur in listevaleurs:
-       val=str(valeur.id)
-       if type == "VIOLATION":
-           nen= val + ' - ' + valeur.nom_en
-       else:
-            nen=valeur.nom_en
-       liste.append((val, nen))
+    if type == "VIOLATION":
+        liste = fait_liste_tables(listevaleurs, 'violation')
+    else:
+        liste = fait_liste_tables(listevaleurs, 'id')
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
-
     return question.render(name, defaultvalue)
+
 
 @register.simple_tag
 def fait_reponse(qid,b, *args, **kwargs):
@@ -148,17 +184,12 @@ def fait_reponse(qid,b, *args, **kwargs):
 
     listevaleurs = Reponsentp2.objects.filter(question_id=qid, )
     name = "q" + str(qid)
-    liste = []
-    for valeur in listevaleurs:
-        val = valeur.reponse_valeur
-        nen = valeur.reponse_en
-        liste.append((val, nen))
+    liste = fait_liste_tables(listevaleurs, 'reponse')
 
-    liste.append(('',''))
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
-
 #   return question.render(name, defaultvalue)
     return enlevelisttag(question.render(name, defaultvalue))
+
 
 @register.simple_tag
 def fait_table_valeurs(qid,type, *args, **kwargs):
@@ -177,15 +208,12 @@ def fait_table_valeurs(qid,type, *args, **kwargs):
     # Klass = apps.get_model('dataentry', typetable[b])
     listevaleurs = Klass.objects.all()
     name = "q" + str(qid)
-    liste = [('','')]
-    for valeur in listevaleurs:
-       val=str(valeur.reponse_valeur)
-       nen=valeur.nom_en
-       liste.append((val, nen))
+    liste = fait_liste_tables(listevaleurs, 'nom')
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
     return question.render(name, defaultvalue)
+
 
 @register.simple_tag
 def fait_table_valeurs_prov(qid,type, *args, **kwargs):
@@ -206,11 +234,7 @@ def fait_table_valeurs_prov(qid,type, *args, **kwargs):
     # Klass = apps.get_model('dataentry', typetable[b])
     listevaleurs = Klass.objects.filter(province__id = province)
     name = "q" + str(qid)
-    liste = [('','')]
-    for valeur in listevaleurs:
-       val=str(valeur.reponse_valeur)
-       nen=valeur.nom_en
-       liste.append((val, nen))
+    liste = fait_liste_tables(listevaleurs, 'nom')
 
     question = forms.Select(choices = liste, attrs={'id': IDCondition,'name': name, })
 
@@ -234,20 +258,51 @@ def enlevelisttag(texte):
 def fait_default(personneid, qid,  *args, **kwargs):
     ##fail la valeur par deffaut
     assistant = kwargs['assistant']
-    defff = ''
+    ancienne = ''
     if Resultatntp2.objects.filter(personne__id=personneid, question__id=qid, assistant__id=assistant).exists():
-        ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant)
-        defff = ancienne.reponsetexte
-
-    return defff
+        ancienne = Resultatntp2.objects.get(personne__id=personneid, question__id=qid, assistant__id=assistant).__str__()
+    return ancienne
 
 
 def fait_id(qid, cible, *args, **kwargs):
     ##fail l'ID pour javascripts ou autre
     relation = kwargs['relation']
-
     IDCondition = "q" + str(qid)
     if relation != '' and cible != '':
-        IDCondition = 'row-' + str(qid) + 'X' +  str(relation) + 'X' +  str(cible)
-
+        IDCondition = 'row-{}X{}X{}'.format(qid, relation, cible)
     return IDCondition
+
+
+def fait_liste_tables(listevaleurs,type):
+    liste = [('', '')]
+    for valeur in listevaleurs:
+        if type == 'nom':
+            val = str(valeur.reponse_valeur)
+            nen = valeur.nom_en
+            liste.append((val, nen))
+        elif type == 'reponse':
+            val = valeur.reponse_valeur
+            nen = valeur.reponse_en
+            liste.append((val, nen))
+        elif type == 'violation':
+            val = str(valeur.id)
+            nen = val + ' - ' + valeur.nom_en
+            liste.append((val, nen))
+        elif type == 'id':
+            val = str(valeur.id)
+            nen = valeur.nom_en
+            liste.append((val, nen))
+    return liste
+
+
+def fait_select_date(IDCondition, name):
+    years = {x: x for x in range(1910, 2019)}
+    years[''] = ''
+    days = {x: x for x in range(1, 32)}
+    days[''] = ''
+    months = (('', ''), (1, 'Jan'), (2, 'Feb'), (3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'),
+              (9, 'Sept'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec'))
+    year = forms.Select(choices=years.items(), attrs={'id': IDCondition, 'name': name + '_year', })
+    month = forms.Select(choices=months, attrs={'name': name + '_month'})
+    day = forms.Select(choices=days.items(), attrs={'name': name + '_day'})
+    return day, month, year
