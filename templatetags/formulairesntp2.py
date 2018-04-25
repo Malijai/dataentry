@@ -22,17 +22,14 @@ def fait_dichou(a,b, *args, **kwargs):
     IDCondition = fait_id(qid,cible,relation=relation)
     name = "q" + str(qid)
     if type == "DICHO":
-        dict = CHOIX_ON
-        liste = dict.items()
+        liste = CHOIX_ON.items()
         question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
     elif type == "BOOLEAN":
         # Choix normand plus que booleen
-        dict = CHOIX_BOOLEAN
-        liste = dict.items()
+        liste = CHOIX_BOOLEAN.items()
         question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
     else:
-        dict = CHOIX_ONUK
-        liste = dict.items()
+        liste = CHOIX_ONUK.items()
         question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))

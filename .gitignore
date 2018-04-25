@@ -1,2 +1,4 @@
 *.pyc
 migrations/
+/views/decryption.py
+/views/__init__.py

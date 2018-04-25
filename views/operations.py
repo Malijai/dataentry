@@ -17,7 +17,7 @@ def SelectPersonne(request):
     #Pour selectionner personne (en fonction de la province), questionnaire
     province = request.user.profile.province
     if province == 10:
-        personnes = Personne.objects.objects.all()
+        personnes = Personne.objects.all()
     else:
         personnes = Personne.objects.filter(province__id=province).filter(~Q(completed = 1))
 
@@ -214,7 +214,9 @@ def saverepetntp2(request, qid, pid):#(request, qid, pid, province):
 
 
 def fait_pagination(pid, qid, request):
-    donnees = Resultatrepetntp2.objects.order_by('fiche').filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid).values_list('fiche', flat=True).distinct()
+    donnees = Resultatrepetntp2.objects.order_by('fiche').filter(
+                        personne__id=pid, assistant__id=request.user.id, questionnaire__id=qid
+                        ).values_list('fiche', flat=True).distinct()
     #donnees = fiche_list.values_list('fiche', flat=True).distinct()
     compte = donnees.count()
     paginator = Paginator(donnees, 3)  # Show 3 fiches par page

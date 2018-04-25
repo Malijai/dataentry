@@ -4,6 +4,7 @@ import re
 from django.apps import apps
 from dataentry.models import Resultatrepetntp2, Reponsentp2, Questionntp2
 from django import forms
+from .formulairesntp2 import fait_select_date, fait_liste_tables, enlevelisttag
 from dataentry.dataentry_constants import CHOIX_ONUK, CHOIX_ON, CHOIX_BOOLEAN
 
 register = template.Library()
@@ -115,17 +116,14 @@ def fait_dichou(qid,type, *args, **kwargs):
     IDCondition = fait_id(qid,cible,relation=relation)
     name = 'q{}Z_Z{}'.format(qid, ordre)
     if type == "DICHO":
-        dict = CHOIX_ON
-        liste = dict.items()
+        liste = CHOIX_ON.items()
         question = forms.RadioSelect(choices = liste, attrs={'id': IDCondition,'name': name, })
     elif type == "BOOLEAN":
         # Choix normand plus que booleen
-        dict = CHOIX_BOOLEAN
-        liste = dict.items()
+        liste = CHOIX_BOOLEAN.items()
         question = forms.Select(choices=liste, attrs={'id': IDCondition, 'name': name, })
     else:
-        dict = CHOIX_ONUK
-        liste = dict.items()
+        liste = CHOIX_ONUK.items()
         question = forms.RadioSelect(choices=liste, attrs={'id': IDCondition, 'name': name, })
 
     return enlevelisttag(question.render(name, defaultvalue))
@@ -209,20 +207,6 @@ def fait_default(personneid, qid, *args, **kwargs):
 
     return ancienne
 
-def fait_defaultVide(personneid, qid, *args, **kwargs):
-    ##fail la valeur par deffaut
-    assistant = kwargs['assistant']
-    ordre  = kwargs['ordre']
-    defff = ''
-
-    return defff
-
-def enlevelisttag(texte):
-    ## pour mettre les radiobutton sur une seule ligne
-    texte = re.sub(r"(<ul[^>]*>)",r"", texte)
-    texte = re.sub(r"(<li[^>]*>)",r"", texte)
-    texte = re.sub(r"(</li>)",r"", texte)
-    return re.sub(r"(</ul>)",r" ", texte)
 
 def fait_id(qid, cible, *args, **kwargs):
     ##fail l'ID pour javascripts ou autre
@@ -249,37 +233,3 @@ def fait_dateh(persid,province,*args, ** kwargs):
 
     return '<h3>{}</h3><b>Hospitalized on: {}</b>'.format(datehosp, datehosp)
 
-
-def fait_liste_tables(listevaleurs,type):
-    liste = [('', '')]
-    for valeur in listevaleurs:
-        if type == 'nom':
-            val = str(valeur.reponse_valeur)
-            nen = valeur.nom_en
-            liste.append((val, nen))
-        elif type == 'reponse':
-            val = valeur.reponse_valeur
-            nen = valeur.reponse_en
-            liste.append((val, nen))
-        elif type == 'violation':
-            val = str(valeur.id)
-            nen = val + ' - ' + valeur.nom_en
-            liste.append((val, nen))
-        elif type == 'id':
-            val = str(valeur.id)
-            nen = valeur.nom_en
-            liste.append((val, nen))
-    return liste
-
-
-def fait_select_date(IDCondition, name):
-    years = {x: x for x in range(1910, 2019)}
-    years[''] = ''
-    days = {x: x for x in range(1, 32)}
-    days[''] = ''
-    months = (('', ''), (1, 'Jan'), (2, 'Feb'), (3, 'Mar'), (4, 'Apr'), (5, 'May'), (6, 'Jun'), (7, 'Jul'), (8, 'Aug'),
-              (9, 'Sept'), (10, 'Oct'), (11, 'Nov'), (12, 'Dec'))
-    year = forms.Select(choices=years.items(), attrs={'id': IDCondition, 'name': name + '_year', })
-    month = forms.Select(choices=months, attrs={'name': name + '_month'})
-    day = forms.Select(choices=days.items(), attrs={'name': name + '_day'})
-    return day, month, year
