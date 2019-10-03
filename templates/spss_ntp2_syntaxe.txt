@@ -1,0 +1,35 @@
+{% load spssntplistevaleurs %}
+  * Structure du fichier de donnees./ Data structure
+  * Note: change the following line according to the place od data files.
+  GET DATA
+  /TYPE=TXT /FILE='/home/PATH/Datas_00_xx_date.csv'
+  /DELCASE=LINE  /DELIMITERS="\t" /ARRANGEMENT=DELIMITED
+  /FIRSTCASE=2
+  /IMPORTCASE=ALL
+  /VARIABLES=
+ID    F3.0
+code    F10.0
+AssistantID    F3.0
+{% for question in questions %}{{ question.varname }}       {{ question.typequestion.taille }}
+{% endfor %}.
+   DATASET NAME DataSet2 WINDOW=FRONT.
+ * Libelle des variables - Variable labels.
+  VARIABLE LABELS
+ID     "Unique ID through provinces"
+Code     "Local code of the file"
+AssistantID     "Assistant ID who has completed the interview or questionnaire"
+{% for question in questions %}{{question.varname}}       "{{question.questionen}}"
+{% endfor %}.
+* Multiple choice labels - Libelle des choix multiples.
+{% autoescape off %}
+{% spaceless %}
+VALUE LABELS
+AssistantID
+{% fait_ntp_ras users 'spss' %}
+{% endspaceless %}
+{% endautoescape %}
+{% for question in questions %}
+{% spaceless %}
+{% include "ntp2_spss_snippet.txt" with typequest=question.typequestion questid=question.id varname=question.varname province=province %}
+{% endspaceless %}
+{% endfor %}

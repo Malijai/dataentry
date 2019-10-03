@@ -3,30 +3,59 @@
 <html>
    <head>
          <title>Questions etc</title>
-         <!--<link rel="stylesheet" href="{% static 'blog/style_b.css' %}">-->
          <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
          <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
-         <!--<script type="text/javascript" src="/static/admin/js/core.js"></script>-->
-         <!--<script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>-->
-         <!--<script type="text/javascript" src="/admin/jsi18n/"></script>-->
+         <link rel="icon" href="{% static 'favicon.ico' %}" type="x-icon" />
+       <link rel="apple-touch-icon" sizes="72x72" href="{% static '/ico/apple-touch-icon-72.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="120x120" href="{% static '/ico/apple-touch-icon-120.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="144x144" href="{% static '/ico/apple-touch-icon-144.png' %}" type="image/png">
+       <link rel="icon" href="{% static '/ico/favicon.png' %}" type="image/png">
 
         <script type="text/javascript" src="/static/jquery.js"></script>
         <script type="text/javascript" src="/static/tabber.js"></script>
         <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
 
+<script type="text/javascript" >
+$(function() {
+	$("input[@id^=row-]").blur(function(){
+		var reg = new RegExp("X", "");
+		res = this.id.split(reg);
+		var valeurcible=res[2];
+		var relation=res[1];
+		var enfant=res[0];
+		var valeurcible2;
+		if(valeurcible == "vide"){
+			valeurcible2="";
+		}else{
+			valeurcible2=valeurcible;
+			}
+		if (relation == 'eq'){
+			if($(this).val() == valeurcible2) {
+				$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+				$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else{
+			if($(this).val() != valeurcible2){
+				$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+				$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}
+	});
+});
+</script>
 
 <script type="text/javascript" >
 $(function() {
 	$("input[@id^=row-]").click(function(){
 		var reg = new RegExp("X", "");
 		res = this.id.split(reg);
-		var cond=res[3];
 		var valeurcible=res[2];
 		var relation=res[1];
 		var enfant=res[0];
 		var valeurcible2;
 		var courant=$(this).val();
-
 		if(valeurcible=="vide"){
 			valeurcible2="";
 		}else{
@@ -78,8 +107,8 @@ $("select[@id^=row-]").click(function(){
 	if(valeurcible=="vide"){
 			valeurcibl2="";
 	}
-valeurcible=parseInt(valeurcible, 10);
-courant=parseInt(courant, 10);
+    valeurcible=parseInt(valeurcible, 10);
+    courant=parseInt(courant, 10);
 
 	if (relation=='eq'){
 		if(courant == valeurcible) {
@@ -111,40 +140,29 @@ courant=parseInt(courant, 10);
 </script>
 
 
-<script type="text/javascript" >
-$(function() {
-	$("TextArea[@id^=row-]").blur(function(){
-		var reg = new RegExp("X", "");
-		res = this.id.split(reg);
-		var cond=res[3];
-		var valeurcible=res[2];
-		var relation=res[1];
-		var enfant=res[0];
-		var valeurcible2;
-		if(valeurcible=="vide"){
-			valeurcible2="";
-		}else{
-			valeurcible2= valeurcible;
-			}
-		if (relation=='eq'){
-			if($(this).val() == valeurcible2) {
-				$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-				$('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}else{
-			if($(this).val() != valeurcible2){
-				$('.child-'+enfant+relation+valeurcible).show();
-			}else{
-				$('.child-'+enfant+relation+valeurcible).hide();
-			}
-		}
-	});
-});
+<script language="JavaScript" type="text/javascript">
+    function sayHello()
+        {
+            alert("Click on the SAVE button.Don t forget to save your work. Clicking on OK will not save anything");
+        }
+
+    function timeGreeting()
+        {
+            //assign the timer to a variable:
+            //you need to do this so the timer can be
+            //referenced by another function when you want
+            //to stop it:
+            var greeting = setInterval(sayHello, 900000);
+            //Notice how the time is set in milliseconds.
+        }
+    timeGreeting();
 </script>
 
 </head>
     <body>
+
+
+
     <form action="" method="post">
         <div id="container">
             {% if messages %}
@@ -162,10 +180,13 @@ $(function() {
     </div>
 
     <div class="footer">
-         <div class="pagination">
-             <a href="{% url 'SelectPersonne' %}" >Return to questionnaire choice</a>
-          <button type="submit" class="btn-default">Save</button>
-         </div>
+        <table>
+            <tr>
+                <td class="pagination"><a href="{% url 'SelectPersonne' %}">Return to questionnaire choice</a></td>
+                <td><button type="submit" class="btn-default">Save</button></td>
+                <td class="pagination"><a href="{% url 'Rechercherviol' %}" target="Codes Violation/CC" onclick="window.open('', 'Codes Violation/CC', 'width=700,height=250,status=yes,resizable=yes,scrollbars=no,toolbar=no')"  >Violation code finder</a></td>
+            </tr>
+        </table>
     </div>
 
     </form>

@@ -1,0 +1,12 @@
+{% load formulairesntp2 %}
+{% with type=typequest|stringformat:"s" %}
+{% autoescape off %}<td class=" {{ classe }} " width = "75%">{{ textequest }}</td><td class=" {{ classe }} " width = "20%">
+{% if type == "STRING" or type == "NUMBER" or type == "CODESTRING" %}
+    {% creetextechar questid type %}</td>
+{% elif type == "DATE" or type == "CODEDATE" or type == "DATEH" %}
+    {% creedate questid type %}</td>
+{% else %}
+    <td class=" {{ classe }} " width = "75%">{{ textequest }} -- {{ type }}</td>
+{% endif %}
+{% endautoescape %}
+{% endwith %}

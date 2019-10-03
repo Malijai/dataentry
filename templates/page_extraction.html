@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load static %}
+
+<html>
+    <head>
+        <title>NTP2 Data exportation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'accueil/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'gh/w3taupe.css' %}">
+        <script type="text/javascript" src="/static/jquery.js"></script>
+        <script type="text/javascript" src="/static/tabber.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
+
+    </head>
+<body class="w3-theme-l4">
+{% for page in iterations %}
+    <h3>Link to the extraction of data ({{ seuil }} users/file):
+        <a href="{% url 'do_csv' province questionnaire page seuil %}">
+        {{ province_nom }} {{ questionnaire_nom }} :#{{ page|add:"1" }}</a></h3>
+{% endfor %}
+</body>
+</html>
+

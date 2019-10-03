@@ -3,14 +3,32 @@
 
 <html>
     <head>
-         <title>Questions etc</title>
-
+        <title>NTP 2 Community - Data entry</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'accueil/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'accueil/w3-theme-maison.css' %}">
         <script type="text/javascript" src="/static/jquery.js"></script>
         <script type="text/javascript" src="/static/tabber.js"></script>
         <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
 
-</head>
-<body>
+    </head>
+<body class="w3-theme-l5">
+
+
+<header class="w3-row w3-theme-d3" id="myHeader">
+
+    <div class="w3-quarter">
+        <a href="{% url 'logout' %}" class="w3-button w3-theme-action"> Logout</a>
+    </div>
+
+    <div class="w3-half w3-center">
+        <h4>NTP 2 Community -  Data entry</h4>
+    </div>
+    <div class="w3-quarter w3-right-align">
+    </div>
+</header>
+<div class="principal">
 {% if messages %}
     {% for msg in messages %}
         <div class="alert alert-{{msg.level_tag}}" role="alert">
@@ -33,13 +51,13 @@
                     <li>the Index hospitalization</li>
                     <li>the Index verdict (the NCR verdict linked with the index hospitalization) and</li>
                     <li>the last Review Board Hearing (linked with the index hospitalization</li>
-                </ul></p>
+                </ul>
                <table>
                 <tr><td></td><td></td></tr>
                 <tr><td>Personne</td><td><select name="personneid" >
                     <option value="">Select a case</option>
                     {% for personne in personnes %}
-                    <option value="{{personne.id}}">{{ personne.code}}</option>
+                    <option value="{{personne.id}}">{{personne.code}}-{{personne.hospcode}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
@@ -57,26 +75,28 @@
        <div class="tabbertab">
            <form method="post" action="">
            {% csrf_token %}
-           <h3>Repetitives</h3><b>For all repetitives questionnaires</b>
-            <p>Select one case and one questionnaire. You will be able to add as many card as there are events.
-               <br>These questionnaires are made to code:
+           <h3>Repetitives</h3><b>For other hospitalizations</b>
+            <p>Select one case and one type of hospitalization. You will be able to add as many card as there are hospitalizations.<br />
+               <b>Code all hospitalization <u>in the same hospital as the index one with admission date</u> in the 5 years preceeding the index hospitalization (if the verdict occured before the 5 year period) or from the Verdict,
+                   to 2017-12-31 even after an absolute release from the RB</b>.<br />
+                If the individual has not been released at the time of the dataentry, code only admission details</p>
                <ul>
-                  <li>the sociodemographic informations which can change over time (past and future)</li>
-                  <li>all the hospitalizations except the Index one (past and future)</li>
-                  <li>minimal informations from all Review Board Hearings (past and future)</li>
-               </ul></p>
+                  <li><b>Repetitive SHORT</b> For all the hospitalizations from verdict date to index one or <b>5 years preceeding the index hospitalization (if the verdict occured before the 5 year period)</b></li>
+                  <li><b>Repetitive SHORT</b> For hospitalizations after index one with <b>duration < 15 days (admission date from Index hospitalization to 2017-12-31)</b></li>
+                  <li><b>Repetitive LONG</b> For hospitalizations AFTER index one whith duration >= 15 days (admission date from Index hospitalization to 2017-12-31)</li>
+               </ul>
             <table>
                 <tr><td></td><td></td></tr>
                  <tr><td>Personne</td><td><select name="personneid" >
                     <option value="">Select a case</option>
                     {% for personne in personnes %}
-                    <option value="{{personne.id}}">{{ personne.code}}</option>
+                    <option value="{{personne.id}}">{{ personne.code}}-{{personne.hospcode}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>Questionnaire</td><td><select name="questionnaireid" >
                     <option value="">Select a questionnaire</option>
                     {% for questionnaire in questionnaires %}
-                         {% if questionnaire.id == 2000 %}
+                         {% if questionnaire.id == 2000 or questionnaire.id == 3000 %}
                             <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
                         {% endif %}
                     {% endfor %}
@@ -84,6 +104,16 @@
                 <tr><td></td><td><button type="submit" class="placeboutons" name="Repetitif">Choose</button></td></tr>
             </table>
        </form>
+       </div>
+       <div class="tabbertab">
+           <form method="post" action="">
+           {% csrf_token %}
+           <h3>File creation</h3><b>To create a new file</b>
+            <p>To create a file you will need : the release date of the Index hospitalization and the file id from the hospital</p>
+            <table>
+                <tr><td></td><td><button type="submit" class="placeboutons" name="Creer">New File</button></td></tr>
+            </table>
+            </form>
        </div>
        <div class="tabbertab">
            <form method="post" action="">
@@ -97,7 +127,7 @@
                  <tr><td>Personne</td><td><select name="personneid" >
                     <option value="">Select a case</option>
                     {% for personne in personnes %}
-                    <option value="{{personne.id}}">{{ personne.code}}</option>
+                    <option value="{{personne.id}}">{{ personne.code}}-{{personne.hospcode}}</option>
                     {% endfor %}
                     </select></td></tr>
                 <tr><td>First, select one case and verify the essential dates</td><td><button type="submit" class="placeboutons" name="Verifier">See essential dates</button></td></tr>
@@ -108,15 +138,52 @@
        <div class="tabbertab">
 <h3>To export questionnaires in PDF</h3>
         <ul>
-             <li>Socio demo<a href="{% url 'do_some_pdf' 4 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Verdict details<a href="{% url 'do_some_pdf' 10 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Verdict Expert assessment<a href="{% url 'do_some_pdf' 11 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Last Hearing details<a href="{% url 'do_some_pdf' 20 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Last Hearing Expert assessment<a href="{% url 'do_some_pdf' 21 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Hospitalization used for selection<a href="{% url 'do_some_pdf' 1000 %}" class= 'button'><b> >> Do pdf</b></a></li>
-             <li>Other hospitalizations<a href="{% url 'do_some_pdf' 2000 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Socio demo<a href="{% url 'do_questions_pdf' 4 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict details<a href="{% url 'do_questions_pdf' 10 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict Expert assessment<a href="{% url 'do_questions_pdf' 11 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Last Hearing details<a href="{% url 'do_questions_pdf' 20 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Last Hearing Expert assessment<a href="{% url 'do_questions_pdf' 21 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Hospitalization used for selection<a href="{% url 'do_questions_pdf' 1000 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Repetitives LONG hospitalizations<a href="{% url 'do_questions_pdf' 2000 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Repetitives SHORT hospitalizations<a href="{% url 'do_questions_pdf' 3000 %}" class= 'button'><b> >> Do pdf</b></a></li>
         </ul>
-   </div></div>
+   </div>
+   {% if user.profile.province == 10 %}
+       <div class="tabbertab">
+        <h3>To export data</h3>
+            <form method="post" action="">
+               {% csrf_token %}
+                   <table>
+                    <tr><td></td><td></td></tr>
+                        <tr><td>Questionnaire</td><td><select name="questionnaireid" >
+                        <option value="">Choose the questionnaire to export</option>
+                        {% for questionnaire in questionnaires %}
+                            {% if questionnaire.id == 4 or questionnaire.id == 10 or questionnaire.id == 11 or questionnaire.id == 20 or questionnaire.id == 21 or questionnaire.id == 1000 or questionnaire.id == 2000 or questionnaire.id == 3000 %}
+                                <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                            {% endif %}
+                        {% endfor %}
+                   </select></td></tr>
+                       <tr><td>Province</td><td><select name="provinceid" >
+                    <option value="">Select a province</option>
+                    {% for province in provinces2 %}
+                    <option value="{{province.id}}">{{ province.reponse_en}}</option>
+                    {% endfor %}
+                    </select></td></tr>
+                   <tr><td></td><td><button type="submit" class="placeboutons" name="Exporterdata">Export data only</button></td></tr>
+                   <tr><td></td><td><button type="submit" class="placeboutons" name="fait_entete_ntp2_spss">Export SPSS syntax</button></td></tr>
+                   <tr><td></td><td><button type="submit" class="placeboutons" name="fait_entete_ntp2_stata">Export STATA syntax</button></td></tr>
+                </table>
+
+           </form>
+       </div>
+   {% endif %}
+   </div>
+
+</div>
+<footer class="w3-container w3-theme-d5 footerw3">
+    <h5><a class="w3-text-white" href="mailto:malijai.caulet.ippm@ssss.gouv.qc.ca?subject=NTP2 troubles">For any question or problem : contact</a></h5>
+</footer>
+
 </body>
 </html>
 

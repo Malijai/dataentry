@@ -1,4 +1,4 @@
 {% load formulairesrepet %}
 {% autoescape off %}
-{% fait_dateh persid=pid province=province ordre=x assistant=user.id %}
+{% fait_dateh persid=pid province=user.profile.province ordre=x assistant=user.id questionnaire=qid %}
 {% endautoescape %}

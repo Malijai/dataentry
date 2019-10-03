@@ -1,53 +1,31 @@
 {% load formulairesntp2 %}
 {% with type=typequest|stringformat:"s" %}
+{% autoescape off %}
+    <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
+    <td class=" {{ classe }} " width = "20%">
 
-{% if type == "STRING" or type == "NUMBER" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_textechar questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=0 %}</td>
-    {% endautoescape %}
-{% elif type == "CODESTRING" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_codetexte questid type persid=persid parent=parent relation=relation cible=cible uid=user.id genre=0  varname=varname %}</td>
-    {% endautoescape %}
-{% elif type == "DATE" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_date questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>
-    {% endautoescape %}
-{% elif type == "CODEDATE" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_datecode questid type persid=persid parent=parent relation=relation cible=cible uid=user.id varname=varname %}</td>
-    {% endautoescape %}
-{% elif type == "BOOLEAN" or type == "DICHO" or type == "DICHOU" or type == "DICHON" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_dichou questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>{% endautoescape %}
-{% elif type == "PROVINCE"  or type == "PAYS" or type == "LANGUE" or type == "VIOLATION" %}
-    {% autoescape off %}
-         <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-         <td class=" {{ classe }} " width = "20%">{% fait_table questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>{% endautoescape %}
-{% elif type == "CATEGORIAL" %}
-    {% autoescape off %}
-         <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-         <td class=" {{ classe }} " width = "20%">{% fait_reponse questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>{% endautoescape %}
-{% elif type == "HCR20"  or type ==  "POSOLOGIE" or type == "VICTIME" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_table_valeurs questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>{% endautoescape %}
-{% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
-    {% autoescape off %}
-         <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-         <td class=" {{ classe }} " width = "20%">{% fait_table_valeurs_prov questid type persid=persid parent=parent relation=relation cible=cible province=user.profile.province uid=user.id %}</td>{% endautoescape %}
-{% elif type == "COUR" %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
-        <td class=" {{ classe }} " width = "20%">{% fait_court questid type persid=persid parent=parent relation=relation cible=cible uid=user.id %}</td>{% endautoescape %}
-{% else %}
-    {% autoescape off %}
-        <td class=" {{ classe }} " width = "75%">{{ textequest }} -- {{ type }}</td>
-    {% endautoescape %}
-{% endif %}
+    {% if type == "STRING" or type == "NUMBER" or type == "TIME" %}
+        {% fait_textechar questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif type == "CODESTRING" %}
+        {% fait_codetexte questid persid=pid relation=relation cible=cible uid=user.id varname=varname %}</td>
+    {% elif type == "DATE" %}
+        {% fait_date questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif type == "CODEDATE" %}
+        {% fait_datecode questid persid=pid relation=relation cible=cible varname=varname %}</td>
+    {% elif type == "DICHO" or type == "DICHOU" %}
+        {% fait_dichou questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif  type == "BOOLEAN" or type == "PROVINCE"  or type == "PAYS" or type == "LANGUE" or type == "VIOLATION" or type == "HCR20" or type == "POSOLOGIE" %}
+        {% fait_table questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif type == "CATEGORIAL" %}
+         {% fait_reponse questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif type == "VICTIME" %}
+        {% fait_victimes questid persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
+        {% fait_table_valeurs_prov questid type persid=pid relation=relation cible=cible province=user.profile.province uid=user.id %}</td>
+    {% elif type == "COUR" %}
+        {% fait_court questid type persid=pid relation=relation cible=cible uid=user.id %}</td>
+    {% else %}
+        <td class=" {{ classe }} " width = "20%">{{ type }}</td>
+    {% endif %}
+{% endautoescape %}
 {% endwith %}
