@@ -97,7 +97,7 @@ class Listevaleur(models.Model):
 
 class Victime(models.Model):
     #  listes de valeurs typequestion_id=14 (VICTIME)
-    #   Restee a part a cause de la logique du tri des items
+    #  Restee a part a cause de la logique du tri des items
     reponse_valeur = models.CharField(max_length=200)
     reponse_en = models.CharField(max_length=200, )
     reponse_fr = models.CharField(max_length=200, )
