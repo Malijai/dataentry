@@ -54,7 +54,8 @@ def verifie_csv(request, pid):
                     ligne.append('-')
                 csv_data.append(ligne)
         else:
-            donnees = Resultatrepetntp2.objects.order_by().filter(personne__id=pid, assistant__id=request.user.id, questionnaire__id=questionnaire.id).values_list('fiche', flat=True).distinct()
+            donnees = Resultatrepetntp2.objects.order_by().filter(personne__id=pid, assistant__id=request.user.id,
+                                                                  questionnaire__id=questionnaire.id).values_list('fiche', flat=True).distinct()
             compte = donnees.count()
             ligne2 = [str(compte) + ' different ' + questionnaire.nom_en]
             csv_data.append(ligne2)
@@ -196,9 +197,10 @@ def ffait_csv(request, province, questionnaire, iteration, seuil):
                                         values_list('fiche', flat=True).distinct()
                 if donnees.count() > 0:
                     ligne = []
-                    decompte = 0
                     for card in donnees:
-                            ligne, decompte = fait_csv_repetitive(personne['id'], personne['code'], assistant['id'], questions, card, questionnaire)
+                        ligne, decompte = fait_csv_repetitive(personne['id'], personne['code'], assistant['id'], questions, card, questionnaire)
+                        if decompte > 4:
+                            toutesleslignes.append(ligne)
             else:
                 if Resultatntp2.objects.filter(personne_id=personne['id'], assistant_id=assistant['id']).exists():
                     ligne = [personne['id'], personne['code'], assistant['id']]
@@ -213,8 +215,8 @@ def ffait_csv(request, province, questionnaire, iteration, seuil):
                             decompte += 1
                         else:
                             ligne.append('')
-            if decompte > 3:
-                toutesleslignes.append(ligne)
+                    if decompte > 3:
+                        toutesleslignes.append(ligne)
     now = datetime.datetime.now().strftime('%Y_%m_%d')
     province_nom = LISTE_PROVINCE[province]
     filename = 'Datas_{}_{}_{}_L{}.csv'.format(province_nom, questionnaire, now, iteration)
