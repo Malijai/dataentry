@@ -7,24 +7,33 @@
   /FIRSTCASE=2
   /IMPORTCASE=ALL
   /VARIABLES=
+
 ID    F3.0
 code    F10.0
-AssistantID    F3.0
+Assistant    F3.0
+{% spaceless %}
+{% if repet == 1 %}
+Card    F3.0
+{% endif %}
 {% for question in questions %}{{ question.varname }}       {{ question.typequestion.taille }}
 {% endfor %}.
-   DATASET NAME DataSet2 WINDOW=FRONT.
+{% endspaceless %}
+DATASET NAME DataSet2 WINDOW=FRONT.
  * Libelle des variables - Variable labels.
   VARIABLE LABELS
 ID     "Unique ID through provinces"
 Code     "Local code of the file"
-AssistantID     "Assistant ID who has completed the interview or questionnaire"
+Assistant     "Assistant ID who has completed the interview or questionnaire"
+{% if repet == 1 %}
+Card     "Hospitalization ID"
+{% endif %}
 {% for question in questions %}{{question.varname}}       "{{question.questionen}}"
 {% endfor %}.
 * Multiple choice labels - Libelle des choix multiples.
 {% autoescape off %}
 {% spaceless %}
 VALUE LABELS
-AssistantID
+Assistant
 {% fait_ntp_ras users 'spss' %}
 {% endspaceless %}
 {% endautoescape %}

@@ -4,7 +4,10 @@ import delimited PATH_to_Datas.csv, case(preserve) clear
 *insheet using PATH_to_Datas.csv, clear
 label variable ID     "Unique ID through provinces"
 label variable Code     "Local code of the file"
-label variable AssistantID     "Assistant ID who has completed the interview or questionnaire"
+label variable Assistant     "Assistant ID who has completed the interview or questionnaire"
+{% if repet %}
+label variable Card     "Hospitalization ID"
+{% endif %}
 
 {% for question in questions %}
 {% spaceless %}
@@ -16,7 +19,7 @@ label variable {{ question.varname }}      "{{question.questionen|slice:"0:80"}}
 {% spaceless %}
 label define AssistantIDlist {% fait_ntp_ras users 'stata' %}
 {% endspaceless %}
-label values AssistantID AssistantIDlist
+label values Assistant AssistantIDlist
 {% for typequestion in typequestions %}
 {% spaceless %}
 {% include "ntp2_stata_snippet.txt" with typequest=typequestion.typequestion__nom stats="stata" %}

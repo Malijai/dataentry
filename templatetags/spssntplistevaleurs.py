@@ -83,7 +83,7 @@ def fait_ntp_rendu(liste, stats):
             sortie += '{} "{}"  '. format(val[0], val[1])
             if i == nb:
                 sortie += "\n"
-    else:
+    elif  stats == 'spss':
         nb = len(liste)
         for i, val in enumerate(liste, 1):
             sortie += '{}        "{}"'. format(val[0], val[1])
@@ -91,6 +91,15 @@ def fait_ntp_rendu(liste, stats):
                 sortie += "/\n."
             else:
                 sortie += "\n"
+    else:
+        nb = len(liste)
+        sortie += '= {\n'
+        for i, val in enumerate(liste, 1):
+            sortie += '{} : "{}"'. format(val[0], val[1])
+            if i == nb:
+                sortie += "}\n"
+            else:
+                sortie += ",\n "
     return sortie
 
 

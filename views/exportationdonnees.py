@@ -26,7 +26,7 @@ class Echo(object):
 
 
 ## Sortie des donnees Individuelles un dossier a la fois
-# Pour verifier les donees de base avant de clore un dossier
+# Pour verifier les donnees de base avant de clore un dossier
 @login_required(login_url=settings.LOGIN_URI)
 def verifie_csv(request, pid):
     # Pour exporter les données de base (les questions qui ont l'attribu qstyle=1 pour tous les cas
@@ -108,9 +108,12 @@ def fait_entete_ntp2_spss(request, questionnaire, province):
     filename1 = '"enteteSPSS_{}.sps"'.format(questionnaire)
     response['Content-Disposition'] = 'attachment; filename={}'.format(filename1)
     questions, usersntp2 = extraction_requete_ntp2(questionnaire)
-
+    if questionnaire > 1000:
+        repet = 1
+    else:
+        repet = 0
     t = loader.get_template('spss_ntp2_syntaxe.txt')
-    response.write(t.render({'questions': questions, 'users': usersntp2, 'province': province}))
+    response.write(t.render({'questions': questions, 'users': usersntp2, 'province': province, 'repet': repet}))
     return response
 
 
@@ -123,9 +126,12 @@ def fait_entete_ntp2_stata(request, questionnaire, province):
     typepresents = Questionntp2.objects.values('typequestion__nom').order_by().filter(questionnaire_id=questionnaire). \
                                             exclude(Q(typequestion=7) | Q(typequestion=100)). \
                                             annotate(tqcount=Count('typequestion__nom'))
-
+    if questionnaire > 1000:
+        repet = 1
+    else:
+        repet = 0
     t = loader.get_template('stata_ntp2_syntaxe.txt')
-    response.write(t.render({'questions': questions, 'typequestions': typepresents, 'users': usersntp2, 'province': province}))
+    response.write(t.render({'questions': questions, 'typequestions': typepresents, 'users': usersntp2, 'province': province, 'repet': repet}))
     return response
 
 
@@ -145,7 +151,7 @@ def extraction_requete_ntp2(questionnaire):
 @login_required(login_url=settings.LOGIN_URI)
 def prepare_csv(request, province, questionnaire):
     province_nom = LISTE_PROVINCE[province]
-    nombre_personnes = Personne.objects.filter(province_id=province).count()
+    nombre_personnes = Personne.objects.filter(province_id=province, completed=1).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
     seuil = 100
     if nombre_personnes > seuil:
@@ -180,7 +186,7 @@ def ffait_csv(request, province, questionnaire, iteration, seuil):
     liste = [i for i in usersntp for j in usersprovince if i['id'] == j['id']]
     inf = iteration * seuil
     sup = (iteration + 1) * seuil
-    personnes = Personne.objects.filter(province_id=province).values('id', 'code')[inf:sup]
+    personnes = Personne.objects.filter(province_id=province, completed=1).values('id', 'code')[inf:sup]
     toutesleslignes = []
     entete = ['ID', 'code', 'Assistant']
     if questionnaire > 1000:
@@ -248,4 +254,18 @@ def fait_csv_repetitive(personne, code, assistant, questions, card, questionnair
                 ligne.append('')
     return ligne, decompte
 
+
+# Pour les syntaxes Pandas, fait le fichier des listes de valeurs
+def fait_entete_ntp2_pandas(request, questionnaire, province):
+    response = HttpResponse(content_type='text/csv')
+    filename1 = '"entetePandas_{}.txt"'.format(questionnaire)
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename1)
+    questions, usersntp2 = extraction_requete_ntp2(questionnaire)
+    typepresents = Questionntp2.objects.values('typequestion__nom').order_by().filter(questionnaire_id=questionnaire). \
+                                            exclude(Q(typequestion=7) | Q(typequestion=100)). \
+                                            annotate(tqcount=Count('typequestion__nom'))
+
+    t = loader.get_template('pandas_ntp2_syntaxe.txt')
+    response.write(t.render({'questions': questions, 'typequestions': typepresents, 'users': usersntp2, 'province': province}))
+    return response
 

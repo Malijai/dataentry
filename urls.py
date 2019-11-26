@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import select_personne, saverepetntp2, saventp2, questions_pdf, ffait_csv, decrypt, verifie_csv, \
-    creerdossierntp2, bilan_par_province, fait_entete_ntp2_spss, fait_entete_ntp2_stata, prepare_csv
+    creerdossierntp2, bilan_par_province, fait_entete_ntp2_spss, fait_entete_ntp2_stata, prepare_csv,fait_entete_ntp2_pandas
 from django.contrib.auth.views import LoginView
 
 
@@ -18,4 +18,5 @@ urlpatterns = [
     path('csv/<int:province>/<int:questionnaire>/<int:iteration>/<int:seuil>/', ffait_csv, name='do_csv'),
     path('entetespss/<int:questionnaire>/<int:province>/', fait_entete_ntp2_spss, name='fait_entete_ntp2_spss'),
     path('entetestata/<int:questionnaire>/<int:province>/', fait_entete_ntp2_stata, name='fait_entete_ntp2_stata'),
+    path('entetepandas/<int:questionnaire>/<int:province>/', fait_entete_ntp2_pandas, name='fait_entete_ntp2_pandas'),
 ]
