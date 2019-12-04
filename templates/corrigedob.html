@@ -1,0 +1,44 @@
+{% load i18n %}
+{% load static %}
+{% load formulairesntp2 %}
+<html>
+   <head>
+    <title>Correction DOB</title>
+       <link rel="stylesheet" type="text/css" href="/static/blog/w3.css" />
+       <link rel="icon" href="{% static 'favicon.ico' %}" type="x-icon" />
+       <link rel="apple-touch-icon" sizes="72x72" href="{% static '/ico/apple-touch-icon-72.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="120x120" href="{% static '/ico/apple-touch-icon-120.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="144x144" href="{% static '/ico/apple-touch-icon-144.png' %}" type="image/png">
+       <link rel="icon" href="{% static '/ico/favicon.png' %}" type="image/png">
+       <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
+       {% load i18n %}
+
+</head>
+    <body>
+
+    <div class="w3-row w3-theme-d3">
+     <h3>{{ personne.code }} -- {{ personne.hospcode }}</h3>
+    </div>
+    <div class="w3-container w3-padding-10">
+        <form method="POST">
+        {% csrf_token %}
+            <table class="w3-table-all">
+            <tr><td>DOB</td>
+                <tr class="{% cycle 'Q1' 'Q2' %}">
+                    {% include "dob_snippet.html" with typequest='DATE' questid='pid_sddob' %}
+                </tr>
+            </tr>
+            <tr><td><button type="submit" class="w3-button w3-amber" name="Save">Save and quit</button></td>
+            </tr>
+            </table>
+        </form>
+
+    </div>
+    <footer>
+        <div class="w3-row w3-theme-d3">
+
+        </div>
+    </footer>
+    </body>
+</html>
+

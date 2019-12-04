@@ -12,6 +12,7 @@ from dataentry.dataentry_constants import LISTE_PROVINCE
 from dataentry.models import Personne, Province
 from accueil.models import Profile, User
 from dataentry.models import Questionnaire, Resultatrepetntp2, Questionntp2, Resultatntp2
+from dataentry.forms import PersonneDob
 
 
 @login_required(login_url=settings.LOGIN_URI)
@@ -21,8 +22,7 @@ def select_personne(request):
     if province == 10:
         personnes = Personne.objects.all()
     else:
-        personnes = Personne.objects.filter(province__id=province).filter(~Q(completed=1))
-
+        personnes = Personne.objects.filter(province__id=province).filter(~Q(completed=1) & ~Q(completed=2))
     if request.method == 'POST':
         if request.POST.get('questionnaireid') == '' or request.POST.get('personneid') == '':
             messages.add_message(request, messages.ERROR, 'You have forgotten to chose at least one field')
@@ -156,22 +156,22 @@ def saventp2(request, qid, pid):
         for question in questionstoutes:
             if question.typequestion.nom == 'DATE' or question.typequestion.nom == 'CODEDATE' or \
                             question.typequestion.nom == 'DATEH':
+                reponseaquestion = ''
                 an = request.POST.get('q{}_year'.format(question.id))
-                if an != "":
+                if an:
                     mois = request.POST.get('q{}_month'.format(question.id))
                     jour = request.POST.get('q{}_day'.format(question.id))
                     reponseaquestion = "{}-{}-{}".format(an, mois, jour)
-                else:
-                    reponseaquestion = ''
             else:
                 reponseaquestion = request.POST.get('q' + str(question.id))
             if reponseaquestion:
                 if question.typequestion.nom == 'CODEDATE' or question.typequestion.nom == 'CODESTRING':
                     reponseaquestion = encode_donnee(reponseaquestion)
                     personne = Personne.objects.get(pk=pid)
-                    personne.__dict__[question.varname] = reponseaquestion
-                    personne.assistant = request.user
-                    personne.save()
+                    if personne.__dict__[question.varname] is None:
+                        personne.__dict__[question.varname] = reponseaquestion
+                        personne.assistant = request.user
+                        personne.save()
                 else:
                     if not Resultatntp2.objects.filter(personne_id=pid, question=question, assistant=request.user,
                                                        reponsetexte=reponseaquestion).exists():
@@ -436,4 +436,43 @@ def genere_questions_deletion(qid):
             # #va chercher si a des filles (question_ fille)
             ascendancesF.add(fille.id)
     return ascendancesF, ascendancesM, questionstoutes
+
+
+@login_required(login_url=settings.LOGIN_URI)
+def listedob(request):
+    personnes_list = Personne.objects.filter(province__id= request.user.profile.province, completed = 2)
+    province = request.user.profile.province
+    return render(request, 'listedob.html', {'personnes': personnes_list, 'province': province})
+
+
+## Pour clore les dossiers avec dob corrigés
+@login_required(login_url=settings.LOGIN_URI)
+def corrigedob(request, pid):
+    personne = Personne.objects.get(pk=pid)
+    form = PersonneDob(instance=personne)
+    if request.method == 'POST':
+        form = PersonneDob(request.POST, instance=personne)
+        if form.is_valid():
+            ddn = ''
+            an = request.POST.get('{}_year'.format('pid_sddob'))
+            personne = form.save(commit=False)
+            if an != "":
+                mois = request.POST.get('{}_month'.format('pid_sddob'))
+                jour = request.POST.get('{}_day'.format('pid_sddob'))
+                ddn = "{}-{}-{}".format(an, mois, jour)
+            if ddn:
+                ddnencodee = encode_donnee(ddn)
+                personne.pid_sddob = ddnencodee
+                personne.completed = 1
+                personne.save()
+                messages.success(request, "The DOB has been encrypted and saved for file # " + personne.code)
+                return redirect(listedob)
+            else:
+                messages.add_message(request, messages.ERROR, 'There is an error in the DOB')
+                return render(request, "corrigedob.html", {'my_form': form, 'personne': personne})
+        else:
+            messages.add_message(request, messages.ERROR, 'There is an error in the DOB')
+            return render(request, "corrigedob.html", {'my_form': form, 'personne': personne})
+    return render(request, "corrigedob.html", {'my_form': form, 'personne': personne})
+
 

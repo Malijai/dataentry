@@ -308,3 +308,15 @@ def creedate(qid, *args, **kwargs):
     day, month, year = fait_select_date(name, name, 2010, 2016)
     # name=q69_year, id=row...
     return year.render(name + '_year', an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)
+
+
+@register.simple_tag
+def creedob(qid, *args, **kwargs):
+    an = ''
+    mois = ''
+    jour = ''
+
+    name = qid
+    day, month, year = fait_select_date(name, name, 1920, 1998)
+    # name=q69_year, id=row...
+    return year.render(name + '_year', an) + month.render(name + '_month', mois) + day.render(name + '_day', jour)

@@ -1,0 +1,47 @@
+{% load i18n %}
+{% load static %}
+<html>
+   <head>
+    <title>Questions etc</title>
+       <link rel="stylesheet" type="text/css" href="/static/blog/w3.css" />
+       <link rel="icon" href="{% static 'favicon.ico' %}" type="x-icon" />
+       <link rel="apple-touch-icon" sizes="72x72" href="{% static '/ico/apple-touch-icon-72.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="120x120" href="{% static '/ico/apple-touch-icon-120.png' %}" type="image/png">
+       <link rel="apple-touch-icon" sizes="144x144" href="{% static '/ico/apple-touch-icon-144.png' %}" type="image/png">
+       <link rel="icon" href="{% static '/ico/favicon.png' %}" type="image/png">
+        <link rel="stylesheet" type="text/css" href="/static/sondageM.css" />
+
+</head>
+    <body>
+    <div id="container">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-{{msg.level_tag}}" role="alert">
+                {{msg.message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    <div class="w3-row w3-pale-blue">
+        <h3>List of closed files with incorrect Date of birth. Once corrected, the file will be closed and will not appear in the list</h3>
+    </div>
+    <div class="w3-container w3-padding-10">
+        <table class="w3-table-all">
+            <tr><th>File Code</th><th>Hospital Code or equivalent</th>
+                <th>Action</th>
+            </tr>
+            {% for personne in personnes %}
+                <tr><td>{{personne.code }}</td><td>{{ personne.hospcode }}</td>
+                <td><a class="w3-btn w3-dark-grey w3-hover-light-grey" href="{% url 'corrigedob' personne.id %}">{% trans "Update DOB" %}</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <footer>
+        <div class="w3-row w3-pale-blue">
+<p>End of list</p>
+        </div>
+    </footer>
+    </body>
+</html>
+

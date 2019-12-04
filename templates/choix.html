@@ -148,6 +148,10 @@
              <li>Repetitives SHORT hospitalizations<a href="{% url 'do_questions_pdf' 3000 %}" class= 'button'><b> >> Do pdf</b></a></li>
         </ul>
    </div>
+       <div class="tabbertab">
+        <h3>DoB correction</h3>
+        <p><a class="w3-btn w3-dark-grey w3-hover-light-grey" href="{% url 'listedob' %}">Click to go the list of files to correct</a></p>
+       </div>
    {% if user.profile.province == 10 %}
        <div class="tabbertab">
         <h3>To export data</h3>

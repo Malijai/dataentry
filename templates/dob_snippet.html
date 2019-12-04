@@ -1,0 +1,6 @@
+{% load formulairesntp2 %}
+{% with type=typequest|stringformat:"s" %}
+{% autoescape off %}<td class=" {{ classe }} " width = "75%">Date of birth to encrypt</td><td class=" {{ classe }} " width = "20%">
+{% creedob questid type %}</td>
+{% endautoescape %}
+{% endwith %}
