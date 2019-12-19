@@ -151,7 +151,8 @@ def extraction_requete_ntp2(questionnaire):
 @login_required(login_url=settings.LOGIN_URI)
 def prepare_csv(request, province, questionnaire):
     province_nom = LISTE_PROVINCE[province]
-    nombre_personnes = Personne.objects.filter(province_id=province, completed=1).count()
+#    nombre_personnes = Personne.objects.filter(province_id=province, completed=1).count()
+    nombre_personnes = Personne.objects.filter(province_id=province).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
     seuil = 100
     if nombre_personnes > seuil:
