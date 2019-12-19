@@ -187,7 +187,8 @@ def ffait_csv(request, province, questionnaire, iteration, seuil):
     liste = [i for i in usersntp for j in usersprovince if i['id'] == j['id']]
     inf = iteration * seuil
     sup = (iteration + 1) * seuil
-    personnes = Personne.objects.filter(province_id=province, completed=1).values('id', 'code')[inf:sup]
+    personnes = Personne.objects.filter(province_id=province).values('id', 'code')[inf:sup]
+    # personnes = Personne.objects.filter(province_id=province, completed=1).values('id', 'code')[inf:sup]
     toutesleslignes = []
     entete = ['ID', 'code', 'Assistant']
     if questionnaire > 1000:
