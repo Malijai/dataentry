@@ -148,13 +148,14 @@ def extraction_requete_ntp2(questionnaire):
 ## Première étape pour exporter les données par province et questionnaire.
 # Scinde les données en paquets de 100 dossiers si nécessaire
 # appele par csv/<int:province>/<int:questionnaire>
+# et prépare les urls pour procéder à l'extraction
 @login_required(login_url=settings.LOGIN_URI)
 def prepare_csv(request, province, questionnaire):
     province_nom = LISTE_PROVINCE[province]
-#    nombre_personnes = Personne.objects.filter(province_id=province, completed=1).count()
-    nombre_personnes = Personne.objects.filter(province_id=province).count()
+    nombre_personnes = Personne.objects.filter(province_id=province, completed=1).count()
+    #    nombre_personnes = Personne.objects.filter(province_id=province).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
-    seuil = 100
+    seuil = 150
     if nombre_personnes > seuil:
         reste = 0
         if nombre_personnes % seuil > 0:
@@ -175,7 +176,7 @@ def prepare_csv(request, province, questionnaire):
 
 # Procede a l'exportation des donnees en CSV tab separated par province et questionnaire.
 # Necessite d'utiliser le streaming pour exporter les données
-def ffait_csv(request, province, questionnaire, iteration, seuil):
+def ffait_csv_old(request, province, questionnaire, iteration, seuil):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
     questions = Questionntp2.objects.\
@@ -225,6 +226,7 @@ def ffait_csv(request, province, questionnaire, iteration, seuil):
                             ligne.append('')
                     if decompte > 3:
                         toutesleslignes.append(ligne)
+
     now = datetime.datetime.now().strftime('%Y_%m_%d')
     province_nom = LISTE_PROVINCE[province]
     filename = 'Datas_{}_{}_{}_L{}.csv'.format(province_nom, questionnaire, now, iteration)
@@ -271,3 +273,82 @@ def fait_entete_ntp2_pandas(request, questionnaire, province):
     response.write(t.render({'questions': questions, 'typequestions': typepresents, 'users': usersntp2, 'province': province}))
     return response
 
+
+# Pour les syntaxes R, fait le fichier des listes de valeurs
+def fait_entete_ntp2_R(request, questionnaire, province):
+    response = HttpResponse(content_type='text/csv')
+    filename1 = '"enteteR_{}.txt"'.format(questionnaire)
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename1)
+    questions, usersntp2 = extraction_requete_ntp2(questionnaire)
+    typepresents = Questionntp2.objects.values('typequestion__nom').order_by().filter(questionnaire_id=questionnaire). \
+                                            exclude(Q(typequestion=7) | Q(typequestion=100)). \
+                                            annotate(tqcount=Count('typequestion__nom'))
+
+    t = loader.get_template('R_ntp2_syntaxe.txt')
+    response.write(t.render({'questions': questions, 'typequestions': typepresents, 'users': usersntp2, 'province': province}))
+    return response
+
+
+# Procede a l'exportation des donnees en CSV tab separated par province et questionnaire.
+# appelé par page_extraction.html via url 'csv/<int:province>/<int:questionnaire>/<int:iteration>/<int:seuil>/'
+# Necessite d'utiliser le streaming pour exporter les données
+# Fait une ligne sans donnees si necessaire
+def ffait_csv(request, province, questionnaire, iteration, seuil):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
+    questions = Questionntp2.objects.\
+                        filter(questionnaire_id=questionnaire).\
+                        exclude(Q(typequestion=7) | Q(typequestion=100)).\
+                        order_by('questionno').values('id', 'varname')
+#    usersntp = [{'id': p.user.id} for p in Projet.objects.filter(projet=Projet.NTP2)]
+#    usersprovince = [{'id': p.user.id} for p in Profile.objects.filter(province=province)]
+#    liste = [i for i in usersntp for j in usersprovince if i['id'] == j['id']]
+    inf = iteration * seuil
+    sup = (iteration + 1) * seuil
+    # personnes = Personne.objects.filter(province_id=province).values('id', 'code', 'assistant_id')[inf:sup]
+    personnes = Personne.objects.filter(province_id=province, completed=1).values('id', 'code')[inf:sup]
+    toutesleslignes = []
+    entete = ['ID', 'code', 'Assistant']
+    if questionnaire > 1000:
+        entete.append('Card')
+    for question in questions:
+        entete.append(question['varname'])
+    toutesleslignes.append(entete)
+
+    for personne in personnes:
+        decompte = 0
+        if questionnaire > 1000:
+            donnees = Resultatrepetntp2.objects.order_by(). \
+                                    filter(personne_id=personne['id'], assistant_id=personne['assistant_id'], questionnaire_id=questionnaire). \
+                                    values_list('fiche', flat=True).distinct()
+            if donnees.count() > 0:
+                ligne = []
+                for card in donnees:
+                    ligne, decompte = fait_csv_repetitive(personne['id'], personne['code'], personne['assistant_id'], questions, card, questionnaire)
+                    if decompte > 4:
+                        toutesleslignes.append(ligne)
+        else:
+            ligne = [personne['id'], personne['code'], personne['assistant_id']]
+            if Resultatntp2.objects.filter(personne_id=personne['id'], assistant_id=personne['assistant_id']).exists():
+                for question in questions:
+                    try:
+                        donnee = Resultatntp2.objects.filter(personne_id=personne['id'], question_id=question['id'],
+                                                             assistant_id=personne['assistant_id']).values('reponsetexte')
+                    except Resultatntp2.DoesNotExist:
+                        donnee = None
+                    if donnee:
+                        ligne.append(donnee[0]['reponsetexte'])
+                        decompte += 1
+                    else:
+                        ligne.append('')
+            toutesleslignes.append(ligne)
+
+    now = datetime.datetime.now().strftime('%Y_%m_%d')
+    province_nom = LISTE_PROVINCE[province]
+    filename = 'Datas_{}_{}_{}_L{}.csv'.format(province_nom, questionnaire, now, iteration)
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+    response = StreamingHttpResponse((writer.writerow(row) for row in toutesleslignes),
+                                      content_type="text/csv")
+    response['Content-Disposition'] = 'attachment;  filename="' + filename + '"'
+    return response

@@ -346,9 +346,9 @@ def bilan_par_province(request):
     for nbh in nb_repet:
         assistant = nbh['assistant']
         questionnaire = nbh['questionnaire']
-        if not assistant in assistants:
+        if assistant not in assistants:
             assistants.add(assistant)
-        if not questionnaire in questionnaires:
+        if questionnaire not in questionnaires:
             questionnaires.add(questionnaire)
         pers_prec = repet_par_ass.get((assistant, questionnaire), 0)
         nb = pers_prec + nbh['nb_h']
@@ -371,6 +371,7 @@ def bilan_par_province(request):
              #            'requete': requete
          }
     )
+
 
 @login_required(login_url=settings.LOGIN_URI)
 def deletentp2(request, qid, pid):
@@ -426,6 +427,7 @@ def deletentp2(request, qid, pid):
                   }
                 )
 
+
 def genere_questions_deletion(qid):
     questionstoutes = Questionntp2.objects.filter(questionnaire__id=qid)
     enfants = questionstoutes.select_related('typequestion', 'parent').filter(questionntp2__parent__id__gt=1)
@@ -474,5 +476,4 @@ def corrigedob(request, pid):
             messages.add_message(request, messages.ERROR, 'There is an error in the DOB')
             return render(request, "corrigedob.html", {'my_form': form, 'personne': personne})
     return render(request, "corrigedob.html", {'my_form': form, 'personne': personne})
-
 

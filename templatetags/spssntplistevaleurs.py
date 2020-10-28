@@ -83,12 +83,20 @@ def fait_ntp_rendu(liste, stats):
             sortie += '{} "{}"  '. format(val[0], val[1])
             if i == nb:
                 sortie += "\n"
-    elif  stats == 'spss':
+    elif stats == 'spss':
         nb = len(liste)
         for i, val in enumerate(liste, 1):
             sortie += '{}        "{}"'. format(val[0], val[1])
             if i == nb:
                 sortie += "/\n."
+            else:
+                sortie += "\n"
+    elif stats == 'R':
+        nb = len(liste)
+        for i, val in enumerate(liste, 1):
+            sortie += '{}  {}'.format(val[0], val[1])
+            if i == nb:
+                sortie += "\n\")"
             else:
                 sortie += "\n"
     else:
@@ -111,6 +119,14 @@ def fait_ntp_ras(liste, stats):
         for i, user in enumerate(liste, 1):
             sortie += '{} "{}"  '. format(user['id'], user['username'])
             if i == nb:
+                sortie += "\n"
+    elif stats == 'R':
+        nb = len(liste)
+        for i, user in enumerate(liste, 1):
+            sortie += '{}  {}'.format(user['id'], user['username'])
+            if i == nb:
+                sortie += "\n\")"
+            else:
                 sortie += "\n"
     else:
         nb = len(liste)

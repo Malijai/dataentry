@@ -1,0 +1,27 @@
+{% load spssntplistevaleurs %}
+
+# Liste des variables avec leur labels:
+# https://cran.r-project.org/web/packages/expss/vignettes/labels-support.html
+#
+var_lab(ID) = "Unique ID through provinces"
+var_lab(Code) = "Local code of the file"
+var_lab(Assistant) = "Assistant ID who has completed the interview or questionnaire"
+{% if repet == 1 %}
+var_lab(Card) = "Hospitalization ID"
+{% endif %}
+{% for question in questions %}var_lab({{question.varname}}) = "{{question.questionen}}"
+{% endfor %}
+
+
+# Libelle des choix multiples.
+{% autoescape off %}
+{% spaceless %}
+val_lab(Assistant) = num_lab("
+{% fait_ntp_ras users 'R' %}
+{% endspaceless %}
+{% endautoescape %}
+{% for question in questions %}
+{% spaceless %}
+{% include "ntp2_R_snippet.txt" with typequest=question.typequestion questid=question.id varname=question.varname province=province %}
+{% endspaceless %}
+{% endfor %}

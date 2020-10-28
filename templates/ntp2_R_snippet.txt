@@ -1,0 +1,37 @@
+{% load spssntplistevaleurs %}
+{% with type=typequest|stringformat:"s" %}
+{% autoescape off %}
+{% if type == "DICHO" or type == "DICHOU" or type == "DICHON" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_dichou type 'R' %}
+{% endspaceless %}
+{% elif type == "CATEGORIAL" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_reponse questid 'R' %}
+{% endspaceless %}
+{% elif type == "VICTIME" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_table_victime 'R' %}
+{% endspaceless %}
+{% elif type == "PROVINCE"  or type == "PAYS" or type == "LANGUE" or type == "VIOLATION"  or type == "POSOLOGIE" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_table type 'R' %}
+{% endspaceless %}
+{% elif type == "HCR20" or type == "BOOLEAN" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_table type 'R' %}
+{% endspaceless %}
+{% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
+{% spaceless %}
+val_lab({{ varname }}) = num_lab("
+{% spss_ntp_table_valeurs_prov type 'R' province %}
+{% endspaceless %}
+{% endif %}
+{% endautoescape %}
+{% endwith %}
+
