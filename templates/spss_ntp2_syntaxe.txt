@@ -15,6 +15,10 @@ Assistant    F3.0
 {% if repet == 1 %}
 Card    F3.0
 {% endif %}
+{% if SD == 1 %}
+Hospital    F10.0
+Completed    F3.0
+{% endif %}
 {% for question in questions %}{{ question.varname }}       {{ question.typequestion.taille }}
 {% endfor %}.
 {% endspaceless %}
@@ -26,6 +30,10 @@ Code     "Local code of the file"
 Assistant     "Assistant ID who has completed the interview or questionnaire"
 {% if repet == 1 %}
 Card     "Hospitalization ID"
+{% endif %}
+{% if SD == 1 %}
+Hospital     "Case selection hospital name"
+Completed     "Codification completed"
 {% endif %}
 {% for question in questions %}{{question.varname}}       "{{question.questionen}}"
 {% endfor %}.

@@ -77,8 +77,13 @@ def select_personne(request):
             return redirect('verifie_csv', pid=pid)
         elif 'Exporterdata' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
-            province= request.POST.get('provinceid')
-            return redirect('prepare_csv', province=province, questionnaire=questionnaire)
+            province = request.POST.get('provinceid')
+            chose = request.POST.get('tous')
+            if chose == "1":
+                tous = 1
+            else:
+                tous = 0
+            return redirect('prepare_csv', province=province, questionnaire=questionnaire, tous=tous)
         elif 'fait_entete_ntp2_spss' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
             province= request.POST.get('provinceid')

@@ -8,6 +8,10 @@ label variable Assistant     "Assistant ID who has completed the interview or qu
 {% if repet %}
 label variable Card     "Hospitalization ID"
 {% endif %}
+{% if SD == 1 %}
+label variable Hospital "Case selection hospital name"
+label variable Completed     "Codification completed"
+{% endif %}
 
 {% for question in questions %}
 {% spaceless %}

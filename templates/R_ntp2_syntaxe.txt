@@ -9,7 +9,10 @@ var_lab(Assistant) = "Assistant ID who has completed the interview or questionna
 {% if repet == 1 %}
 var_lab(Card) = "Hospitalization ID"
 {% endif %}
-{% for question in questions %}var_lab({{question.varname}}) = "{{question.questionen}}"
+{% if SD == 1 %}
+ar_lab(Hospital) = Case selection hospital name"
+ar_lab(Completed) = Codification completed"
+{% endif %}{% for question in questions %}var_lab({{question.varname}}) = "{{question.questionen}}"
 {% endfor %}
 
 
