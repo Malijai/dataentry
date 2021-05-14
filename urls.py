@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import select_personne, saverepetntp2, saventp2, questions_pdf, ffait_csv, decrypt, verifie_csv, \
     creerdossierntp2, bilan_par_province, fait_entete_ntp2_spss, fait_entete_ntp2_stata, prepare_csv, \
-    fait_entete_ntp2_pandas, corrigedob, listedob, fait_entete_ntp2_R, lissecret
+    fait_entete_ntp2_pandas, corrigedob, listedob, fait_entete_ntp2_R
 from django.contrib.auth.views import LoginView
 
 
@@ -23,5 +23,5 @@ urlpatterns = [
     path('enteteR/<int:questionnaire>/<int:province>/', fait_entete_ntp2_R, name='fait_entete_ntp2_R'),
     path('listedob/', listedob, name='listedob'),
     path('corrigedob/<int:pid>', corrigedob, name='corrigedob'),
-    path('decode/<int:prov>',lissecret, name='lissecret')
+    # path('decode/<int:prov>',lissecret, name='lissecret')
 ]
