@@ -79,11 +79,12 @@ def select_personne(request):
             questionnaire = request.POST.get('questionnaireid')
             province = request.POST.get('provinceid')
             chose = request.POST.get('tous')
+            seuil = request.POST.get('seuil')
             if chose == "1":
                 tous = 1
             else:
                 tous = 0
-            return redirect('prepare_csv', province=province, questionnaire=questionnaire, tous=tous)
+            return redirect('prepare_csv', province=province, questionnaire=questionnaire, tous=tous, seuil=seuil)
         elif 'fait_entete_ntp2_spss' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
             province= request.POST.get('provinceid')

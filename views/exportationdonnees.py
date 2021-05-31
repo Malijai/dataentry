@@ -180,14 +180,13 @@ def extraction_requete_ntp2(questionnaire):
 # et prépare les urls pour procéder à l'extraction
 # urls pour appeler ffait_csv, name='do_csv'
 @login_required(login_url=settings.LOGIN_URI)
-def prepare_csv(request, province, questionnaire, tous):
+def prepare_csv(request, province, questionnaire, tous, seuil):
     province_nom = LISTE_PROVINCE[province]
     if tous == 0:
         nombre_personnes = Personne.objects.filter(Q(province_id=province) & (Q(completed=1) | Q(completed=2))).count()
     else:
         nombre_personnes = Personne.objects.filter(province_id=province).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
-    seuil = 150
     if nombre_personnes > seuil:
         reste = 0
         if nombre_personnes % seuil > 0:
