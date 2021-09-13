@@ -19,7 +19,6 @@ Be carefull all these data will not be accessible after saving</h2>
                 {% include "create_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id province=user.profile.province varname=question.varname %}
                 {% include "aide_snippet.html" with aide=question.aideen %}
             </tr>
-
         {% endif %}
     {% endfor %}
 </table>
