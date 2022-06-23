@@ -17,7 +17,7 @@
 {{ texte }}
 {% for page in iterations %}
     <h3>Link to the extraction of data ({{ seuil }} users/file):
-        <a href="{% url 'do_csv' province questionnaire page seuil %}">
+        <a href="{% url 'do_csv' province questionnaire page seuil tous %}">
         {{ province_nom }} {{ questionnaire_nom }} :#{{ page|add:"1" }}</a></h3>
 {% endfor %}
 </body>
