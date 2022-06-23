@@ -79,8 +79,9 @@ def select_personne(request):
             questionnaire = request.POST.get('questionnaireid')
             province = request.POST.get('provinceid')
             seuil = request.POST.get('seuil')
+            tous = request.POST.get('tous')
 
-            return redirect('prepare_csv', province=province, questionnaire=questionnaire, seuil=seuil)
+            return redirect('prepare_csv', province=province, questionnaire=questionnaire, seuil=seuil, tous=tous)
         elif 'Exporterlesdata' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
             province = request.POST.get('provinceid')

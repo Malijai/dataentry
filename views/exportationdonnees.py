@@ -180,7 +180,7 @@ def extraction_requete_ntp2(questionnaire):
 # et prépare les urls pour procéder à l'extraction
 # urls pour appeler ffait_csv, name='do_csv'
 @login_required(login_url=settings.LOGIN_URI)
-def prepare_csv(request, province, questionnaire, seuil):
+def prepare_csv(request, province, questionnaire, seuil, tous):
     province_nom = LISTE_PROVINCE[province]
     nombre_personnes = Personne.objects.filter(province_id=province).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
@@ -199,6 +199,7 @@ def prepare_csv(request, province, questionnaire, seuil):
                        'questionnaire_nom': questionnaire_nom.nom_en,
                        'province_nom': province_nom,
                        'seuil': seuil,
+                       'tous': tous
                       })
 
 # Procede a l'exportation des donnees en CSV tab separated par province et questionnaire.
