@@ -180,12 +180,9 @@ def extraction_requete_ntp2(questionnaire):
 # et prépare les urls pour procéder à l'extraction
 # urls pour appeler ffait_csv, name='do_csv'
 @login_required(login_url=settings.LOGIN_URI)
-def prepare_csv(request, province, questionnaire, tous, seuil):
+def prepare_csv(request, province, questionnaire, seuil):
     province_nom = LISTE_PROVINCE[province]
-    if tous == 0:
-        nombre_personnes = Personne.objects.filter(Q(province_id=province) & (Q(completed=1) | Q(completed=2))).count()
-    else:
-        nombre_personnes = Personne.objects.filter(province_id=province).count()
+    nombre_personnes = Personne.objects.filter(province_id=province).count()
     questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
     if nombre_personnes > seuil:
         reste = 0
@@ -202,74 +199,33 @@ def prepare_csv(request, province, questionnaire, tous, seuil):
                        'questionnaire_nom': questionnaire_nom.nom_en,
                        'province_nom': province_nom,
                        'seuil': seuil,
-                       'tous': tous
                       })
-
 
 # Procede a l'exportation des donnees en CSV tab separated par province et questionnaire.
 # appelé par page_extraction.html via url 'csv/<int:province>/<int:questionnaire>/<int:iteration>/<int:seuil>/'
 # Necessite d'utiliser le streaming pour exporter les données
 # Fait une ligne sans donnees si l'assistant a fait au moins un des questionnaires
-def ffait_csv(request, province, questionnaire, iteration, seuil, tous):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
+
+
+def ffait_csv_rev(request, province, questionnaire, iteration, seuil, tous):
     questions = Questionntp2.objects.\
                         filter(questionnaire_id=questionnaire).\
                         exclude(Q(typequestion=7) | Q(typequestion=100)).\
                         order_by('questionno').values('id', 'varname')
-#    usersntp = [{'id': p.user.id} for p in Projet.objects.filter(projet=Projet.NTP2)]
-#    usersprovince = [{'id': p.user.id} for p in Profile.objects.filter(province=province)]
-#    liste_assistants_province = [i for i in usersntp for j in usersprovince if i['id'] == j['id']]
     inf = iteration * seuil
     sup = (iteration + 1) * seuil
     if tous == 0:
         personnes = Personne.objects.filter(Q(province_id=province) & (Q(completed=1) | Q(completed=2))). \
-                                    values('id', 'code','selecthosp','completed')[inf:sup]
+                                    values('id', 'code', 'selecthosp', 'completed', 'hospcode')[inf:sup]
     else:
-        personnes = Personne.objects.filter(province_id=province).values('id', 'code','selecthosp','completed')[inf:sup]
-    toutesleslignes = []
-    entete = ['ID', 'code', 'Assistant']
+        personnes = Personne.objects.filter(province_id=province).values('id', 'code', 'selecthosp', 'completed', 'hospcode')[inf:sup]
     if questionnaire > 1000:
-        entete.append('Card')
-    elif questionnaire == 4:
-        entete.append('selecthosp')
-        entete.append('completed')
-    for question in questions:
-        entete.append(question['varname'])
-    toutesleslignes.append(entete)
-    for personne in personnes:
-        if questionnaire > 1000:
-            assistants = Resultatrepetntp2.objects.order_by().filter(personne_id=personne['id']).values_list('assistant_id',
-                                                                                                        flat=True).distinct()
-            for assistant in assistants:
-                donnees = Resultatrepetntp2.objects.order_by(). \
-                filter(personne_id=personne['id'], assistant_id=assistant, questionnaire_id=questionnaire). \
-                        values_list('fiche', flat=True).distinct()
-                if donnees.count() > 0:
-                    ligne = []
-                    for card in donnees:
-                        ligne, decompte = fait_csv_repetitive(personne['id'], personne['code'], assistant, questions,
-                                                              card, questionnaire)
-                        if decompte > 4:
-                            toutesleslignes.append(ligne)
-        else:
-            assistants = Resultatntp2.objects.order_by().filter(personne_id=personne['id']).values_list('assistant_id', flat=True).distinct()
-            for assistant in assistants:
-                if questionnaire == 4:
-                    ligne = [personne['id'], personne['code'], assistant, personne['selecthosp'], personne['completed']]
-                else:
-                    ligne = [personne['id'], personne['code'], assistant]
-                for question in questions:
-                    try:
-                        donnee = Resultatntp2.objects.filter(personne_id=personne['id'], question_id=question['id'],
-                                                             assistant_id=assistant).values('reponsetexte')
-                    except Resultatntp2.DoesNotExist:
-                        donnee = None
-                    if donnee:
-                        ligne.append(donnee[0]['reponsetexte'])
-                    else:
-                        ligne.append('')
-                toutesleslignes.append(ligne)
+        toutesleslignes = fait_csv_repetitive(questionnaire, personnes, questions, iteration)
+    else:
+        toutesleslignes = fait_csv_non_repet(questionnaire, personnes, questions, iteration)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
 
     now = datetime.datetime.now().strftime('%Y_%m_%d')
     province_nom = LISTE_PROVINCE[province]
@@ -277,9 +233,42 @@ def ffait_csv(request, province, questionnaire, iteration, seuil, tous):
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
     response = StreamingHttpResponse((writer.writerow(row) for row in toutesleslignes),
-                                      content_type="text/csv")
+                                     content_type="text/csv")
     response['Content-Disposition'] = 'attachment;  filename="' + filename + '"'
     return response
+
+
+def fait_csv_non_repet(questionnaire, personnes, questions, iteration):
+    toutesleslignes = []
+    entete = ['ID', 'code', 'Assistant']
+    if questionnaire == 4:
+        entete.append('hospcode')
+        entete.append('selecthosp')
+        entete.append('completed')
+    for question in questions:
+        entete.append(question['varname'])
+    toutesleslignes.append(entete)
+    for personne in personnes:
+        assistants = Resultatntp2.objects.order_by().filter(personne_id=personne['id']).values_list('assistant_id', flat=True).distinct()
+        for assistant in assistants:
+            if questionnaire == 4:
+                ligne = [personne['id'], personne['code'], personne['hospcode'], assistant, personne['selecthosp'], personne['completed']]
+            else:
+                ligne = [personne['id'], personne['code'], assistant]
+            for question in questions:
+                try:
+                    donnee = Resultatntp2.objects.filter(personne_id=personne['id'], question_id=question['id'],
+                                                         assistant_id=assistant).values('reponsetexte')
+                except Resultatntp2.DoesNotExist:
+                    donnee = None
+                if donnee:
+                    ligne.append(donnee[0]['reponsetexte'])
+                else:
+                    ligne.append('')
+            toutesleslignes.append(ligne)
+
+    return toutesleslignes
+
 
 # Fait les requetes dans la BD des resultatsrepetitifs pour la sorie csv de tous
 def fait_csv_repetitive(personne, code, assistant, questions, card, questionnaire):
@@ -299,4 +288,3 @@ def fait_csv_repetitive(personne, code, assistant, questions, card, questionnair
         else:
             ligne.append('')
     return ligne, decompte
-

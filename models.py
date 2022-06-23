@@ -210,7 +210,3 @@ class Resultatrepetntp2(models.Model):
 
     def __str__(self):
         return '%s' % self.reponsetexte
-
-
-############################################
-

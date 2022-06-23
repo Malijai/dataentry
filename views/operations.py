@@ -78,13 +78,18 @@ def select_personne(request):
         elif 'Exporterdata' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
             province = request.POST.get('provinceid')
-            chose = request.POST.get('tous')
             seuil = request.POST.get('seuil')
+
+            return redirect('prepare_csv', province=province, questionnaire=questionnaire, seuil=seuil)
+        elif 'Exporterlesdata' in request.POST:
+            questionnaire = request.POST.get('questionnaireid')
+            province = request.POST.get('provinceid')
+            chose = request.POST.get('tous')
             if chose == "1":
                 tous = 1
             else:
                 tous = 0
-            return redirect('prepare_csv', province=province, questionnaire=questionnaire, tous=tous, seuil=seuil)
+            return redirect('exp_ffait_csv', province=province, questionnaire=questionnaire, tous=tous)
         elif 'fait_entete_ntp2_spss' in request.POST:
             questionnaire = request.POST.get('questionnaireid')
             province= request.POST.get('provinceid')
